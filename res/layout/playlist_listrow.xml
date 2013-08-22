@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" android:paddingBottom="5dp" android:paddingTop="5dp"
+                android:paddingLeft="5dp" android:paddingRight="5dp">
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-"
+            android:id="@+id/artist_separator_textview"
+            android:layout_alignBottom="@+id/artist_name_textview" android:layout_marginLeft="2.5dp"
+            android:layout_marginRight="2.5dp" android:layout_toRightOf="@+id/artist_name_textview"/>
+
+    <TextView android:id="@+id/track_name_textview"
+              android:textSize="16sp"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_alignBottom="@+id/artist_name_textview"
+              android:layout_toRightOf="@+id/artist_separator_textview"/>
+
+    <TextView android:id="@+id/artist_name_textview"
+              android:textSize="16sp"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_toRightOf="@+id/albumart_playlist_imageview"
+              android:layout_alignTop="@+id/albumart_playlist_imageview" android:layout_marginLeft="10dp"
+              android:layout_marginTop="2.5dp"/>
+
+    <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/albumart_playlist_imageview" android:layout_alignParentLeft="true" android:layout_alignParentTop="true"
+            android:contentDescription="@string/album_art"
+            android:src="@drawable/noalbumart" android:maxHeight="20dp" android:maxWidth="20dp"
+            android:layout_marginBottom="5dp"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/played_by"
+            android:id="@+id/played_by_textview"
+            android:layout_alignBottom="@+id/albumart_playlist_imageview"
+            android:layout_alignLeft="@+id/artist_name_textview" android:layout_marginBottom="2.5dp"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/dj_name_textview" android:layout_toRightOf="@+id/played_by_textview"
+            android:layout_alignBottom="@+id/played_by_textview" android:layout_marginLeft="2.5dp"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/time_played_textview"
+            android:layout_alignBottom="@+id/albumart_playlist_imageview" android:layout_alignParentRight="true"
+            android:textStyle="italic"/>
+
+
+</RelativeLayout>

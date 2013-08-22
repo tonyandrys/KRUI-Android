@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- General Colors -->
+    <color name="white">#FFFFFF
+    </color>
+    <color name="black">#000000
+    </color>
+    <color name="dark_gray">#4A4A4A
+    </color>
+    <color name="light_gray">#D9D9D9
+    </color>
+    <color name="red">#FF0000
+    </color>
+    <color name="burgundy">#8C0303
+    </color>
+    <color name="transparent">#00FFFFFF
+    </color>
+
+    <!-- Context Specific Colors -->
+    <color name="drawer_background">#252525
+    </color>
+    <color name="drawer_foreground">#303030
+    </color>
+
+</resources>

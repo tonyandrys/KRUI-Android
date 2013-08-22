@@ -1,0 +1,166 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/light_gray"
+    tools:context=".StreamActivity" android:id="@+id/stream_fragment_container_relativelayout">
+
+    <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/stream_album_art_container"
+            android:layout_alignParentBottom="false" android:layout_above="@+id/stream_functions_container_framelayout"
+            android:layout_centerHorizontal="true" android:layout_marginBottom="25dp" android:layout_marginTop="5dp">
+        <ImageView
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:id="@+id/album_art_loading_pane"
+                android:background="#C4C4C4" android:visibility="invisible"/>
+        <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/album_art_progressbar" android:layout_centerInParent="true"
+                android:visibility="invisible"/>
+        <ImageView
+            android:id="@+id/album_art_pane"
+            android:layout_height="300dp"
+            android:layout_width="300dp"
+            android:src="@drawable/krui_background_logo"
+            android:contentDescription="@string/krui_logo_background_desc"
+            android:layout_centerHorizontal="true"
+            android:visibility="visible"/>
+    </RelativeLayout>
+    <TextView
+        android:id="@+id/song_name_textview"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:textSize="20sp"
+        android:scrollHorizontally="true"
+        android:fadingEdge="horizontal"
+        android:singleLine="true" android:ellipsize="middle"
+        android:marqueeRepeatLimit="marquee_forever" android:gravity="center_horizontal"
+        android:textAlignment="gravity" android:layout_marginTop="10dp"/>
+    
+    <TextView
+        android:id="@+id/album_name_textview"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:textSize="18sp"
+        android:layout_below="@+id/artist_name_textview" android:layout_centerHorizontal="true"
+        android:gravity="center_horizontal" android:textAlignment="gravity" android:layout_marginTop="2.5dp"
+            />
+
+    <!-- Unfinished solution! This button is kludgy and is only temporary. -->
+
+    <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/artist_name_textview"
+            android:textSize="18sp"
+            android:layout_below="@+id/song_name_textview" android:layout_centerHorizontal="true"
+            android:textAlignment="gravity" android:gravity="center_horizontal" android:layout_marginTop="2.5dp"/>
+    <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView" android:layout_toLeftOf="@+id/play_audio_button"
+            android:src="@drawable/star_unfilled" android:layout_alignBottom="@+id/play_audio_button"
+            android:visibility="invisible"/>
+    <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView1"
+            android:layout_alignParentBottom="true" android:layout_centerHorizontal="true"
+            android:src="@drawable/stream_control_gradient"/>
+    <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="150dp" android:id="@+id/stream_functions_container_framelayout"
+            android:layout_alignParentBottom="true">
+        <TableLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" android:id="@+id/player_controls_tablelayout"
+                android:layout_alignParentBottom="true" android:layout_centerHorizontal="true" android:stretchColumns="*"
+                android:background="@drawable/stream_control_gradient" android:visibility="visible">
+            <TableRow
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent" android:layout_marginBottom="10dp" android:layout_marginTop="20dp">
+                <SeekBar
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/volume_seekbar" android:layout_span="3" android:progress="100" android:max="100"
+                        android:layout_marginRight="10dp"/>
+            </TableRow>
+            <TableRow
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent" android:layout_marginBottom="20dp"
+                    android:layout_marginTop="10dp">
+                <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="50dp"
+                        android:id="@+id/stream_favorite_imageview" android:src="@drawable/star_unfilled_white"/>
+                <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="50dp"
+                        android:id="@+id/play_audio_imageview" android:layout_column="1" android:src="@drawable/play_icon_white"
+                        />
+                <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="50dp"
+                        android:id="@+id/stream_settings_imageview" android:layout_column="2" android:src="@drawable/settings_icon"/>
+            </TableRow>
+        </TableLayout>
+        <TableLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" android:id="@+id/player_settings_tablelayout"
+                android:layout_alignTop="@+id/player_controls_tablelayout"
+                android:background="@drawable/stream_control_gradient" android:gravity="center_vertical|center_horizontal"
+                android:visibility="gone" android:stretchColumns="*">
+            <TableRow
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent" android:layout_gravity="center_horizontal"
+                    android:gravity="center" android:layout_marginBottom="10dp" android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp">
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/high_quality_stream"
+                        android:id="@+id/textView" android:layout_column="0" android:textColor="@color/white"
+                        android:layout_marginRight="10dp" android:textSize="20sp" android:layout_marginLeft="10dp"/>
+                <Switch
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/stream_quality_switch" android:layout_column="1" android:checked="true"
+                        android:layout_marginLeft="5dp" android:layout_marginRight="10dp"/>
+            </TableRow>
+            <TableRow
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent" android:layout_gravity="center_horizontal" android:gravity="center"
+                    android:layout_marginBottom="10dp" android:layout_marginLeft="10dp" android:layout_marginRight="10dp">
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/download_album_art"
+                        android:id="@+id/textView1" android:layout_column="0" android:textColor="@color/white"
+                        android:layout_marginRight="10dp" android:textSize="20sp" android:layout_marginLeft="10dp"
+                        />
+                <Switch
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/stream_album_art_switch" android:layout_column="1" android:checked="true"
+                        android:layout_marginLeft="5dp" android:layout_marginRight="10dp"/>
+            </TableRow>
+            <TableRow
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent" android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp">
+                <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/done"
+                        android:id="@+id/set_stream_settings_button" android:layout_column="0"
+                        android:layout_span="2"/>
+            </TableRow>
+        </TableLayout>
+    </FrameLayout>
+
+</RelativeLayout>

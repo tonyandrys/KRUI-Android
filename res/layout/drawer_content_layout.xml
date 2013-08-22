@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent" android:background="@color/drawer_background">
+
+    <TableLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" android:id="@+id/sidebar_button_container_tablelayout">
+        <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent" android:gravity="center_vertical"
+                android:background="@color/drawer_foreground" android:onClick="showStream">
+            <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="50dp"
+                    android:id="@+id/imageView" android:layout_column="0" android:src="@drawable/ic_launcher"
+                    android:layout_marginLeft="5dp" android:layout_marginRight="5dp"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/listen_sidebar"
+                    android:id="@+id/textView" android:layout_column="1" android:textSize="18sp"
+                    android:textColor="@color/white" android:paddingLeft="5dp" android:paddingRight="10dp"
+                    />
+        </TableRow>
+        <TableRow android:layout_width="wrap_content" android:layout_height="fill_parent"
+                  android:gravity="center_vertical" android:background="@color/drawer_foreground"
+                  android:onClick="showSchedule" android:id="@+id/tableRow2">
+            <ImageView android:layout_width="40dp" android:layout_height="50dp" android:id="@+id/imageView3"
+                       android:layout_column="0" android:src="@drawable/schedule_icon" android:layout_marginLeft="5dp"
+                       android:layout_marginRight="5dp" android:layout_marginTop="2.5dp"
+                       android:layout_marginBottom="2.5dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                      android:text="@string/schedule_sidebar" android:id="@+id/textView3" android:layout_column="1"
+                      android:textSize="18sp" android:textColor="@color/white" android:paddingLeft="5dp"
+                      android:paddingRight="10dp"/>
+        </TableRow>
+        <TableRow android:layout_width="wrap_content" android:layout_height="fill_parent"
+                  android:gravity="center_vertical" android:background="@color/drawer_foreground"
+                  android:id="@+id/tableRow" android:onClick="showPlaylist">
+            <ImageView android:layout_width="40dp" android:layout_height="50dp" android:id="@+id/imageView1"
+                       android:layout_column="0" android:src="@drawable/extended_playlist_icon" android:layout_marginLeft="5dp"
+                       android:layout_marginRight="5dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/playlist_sidebar"
+                      android:id="@+id/textView1" android:layout_column="1" android:textSize="18sp"
+                      android:textColor="@color/white" android:paddingLeft="5dp" android:paddingRight="10dp"/>
+        </TableRow>
+        <TableRow android:layout_width="wrap_content" android:layout_height="fill_parent"
+                  android:gravity="center_vertical" android:background="@color/drawer_foreground"
+                  android:id="@+id/tableRow1" android:onClick="showDJInfo">
+            <ImageView android:layout_width="40dp" android:layout_height="50dp" android:id="@+id/imageView2"
+                       android:layout_column="0" android:src="@drawable/microphone_icon" android:layout_marginLeft="5dp"
+                       android:layout_marginRight="5dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                      android:text="@string/about_dj_sidebar" android:id="@+id/textView2" android:layout_column="1"
+                      android:textSize="18sp" android:textColor="@color/white" android:paddingLeft="5dp"
+                      android:paddingRight="10dp"/>
+        </TableRow>
+    </TableLayout>
+</LinearLayout>

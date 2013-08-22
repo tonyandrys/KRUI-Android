@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="10dp" android:id="@+id/djinfo_fragment_container_relativelayout">
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bio"
+            android:id="@+id/djinfo_bio_label_textview"
+            android:layout_below="@+id/djinfo_header_tablelayout" android:layout_marginTop="10dp"/>
+    <ScrollView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/djinfo_bio_scrollview" android:layout_below="@+id/djinfo_bio_label_textview"
+            android:layout_alignLeft="@+id/djinfo_bio_label_textview"
+            android:layout_alignRight="@+id/djinfo_header_tablelayout"
+            android:background="@drawable/textview_black_border">
+        <FrameLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+            <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:text="No Bio :("
+                    android:id="@+id/dj_bio_content_textview" android:linksClickable="false" android:lines="8"
+                    android:paddingLeft="5dp"
+                    android:paddingTop="5dp" android:paddingRight="8dp" android:paddingBottom="5dp"
+                    android:gravity="center|center_vertical|center_horizontal"/>
+        </FrameLayout>
+    </ScrollView>
+    <TableLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:stretchColumns="1" android:id="@+id/djinfo_header_tablelayout">
+        <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical">
+            <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:id="@+id/dj_image_imageView" android:layout_column="0" android:src="@drawable/default_dj_image"
+                    />
+            <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent" android:layout_column="1" android:orientation="vertical"
+                    android:gravity="center_vertical">
+                <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/dj_info_name_textview" android:layout_centerInParent="true"
+                        android:textSize="20sp" android:paddingTop="5dp"
+                        android:paddingBottom="5dp" android:background="@color/light_gray"
+                        android:gravity="left"/>
+                <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
+                          android:id="@+id/dj_info_url_textview"
+                          android:layout_below="@+id/dj_info_name_textview" android:layout_centerHorizontal="true"
+                          android:gravity="center" android:background="@color/light_gray" android:paddingTop="5dp"
+                          android:paddingBottom="5dp"/>
+            </LinearLayout>
+
+        </TableRow>
+
+    </TableLayout>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Twitter"
+              android:id="@+id/textView"
+              android:layout_alignLeft="@+id/djinfo_bio_scrollview"
+              android:layout_marginTop="10dp" android:layout_below="@+id/djinfo_bio_scrollview"/>
+    <ScrollView android:layout_width="fill_parent" android:layout_height="wrap_content"
+                android:id="@+id/dj_twitter_scrollview" android:layout_below="@+id/textView"
+                android:layout_alignLeft="@+id/djinfo_bio_label_textview"
+                android:layout_alignRight="@+id/djinfo_header_tablelayout"
+                android:background="@drawable/textview_black_border">
+        <FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent">
+            <TextView android:layout_width="fill_parent" android:layout_height="fill_parent" android:text="No Twitter :("
+                      android:id="@+id/dj_twitter_content" android:linksClickable="false" android:lines="10"
+                      android:paddingLeft="5dp" android:paddingTop="5dp" android:paddingRight="8dp"
+                      android:paddingBottom="5dp" android:gravity="center|center_vertical|center_horizontal"/>
+        </FrameLayout>
+    </ScrollView>
+</RelativeLayout>

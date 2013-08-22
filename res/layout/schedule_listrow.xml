@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Layout for all rows in the main schedule view. -->
+
+	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:id="@+id/schedule_listrow_container"
+    	android:layout_width="match_parent"
+    	android:layout_height="match_parent"
+    	android:paddingLeft="5dp" 
+    	android:paddingRight="5dp" 	
+    	android:paddingBottom="5dp" 	
+    	android:paddingTop="5dp" >	
+   
+    <TextView
+        android:id="@+id/list_show_start_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:text="12AM"
+        android:textSize="15sp" 
+        android:textColor="#000000" />
+    
+    <TextView
+        android:id="@+id/list_show_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/list_show_start_time"
+        android:layout_centerHorizontal="true"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:text="Title Of Show!"
+        android:textSize="15sp"
+        android:textColor="#000000" />
+    
+	</RelativeLayout>

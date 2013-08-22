@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="station_string_array">
+        <item>89.7 FM</item>
+        <item>The Lab</item>
+    </string-array>
+</resources>
