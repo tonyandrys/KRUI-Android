@@ -102,12 +102,11 @@ public class FavoriteTrackAdapter extends BaseAdapter {
             trackHolder.deleteTrackImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
                     // Remove the track from the LOCAL copy of data to remove it from the displayed list
                     trackList.remove(position);
                     notifyDataSetChanged();
-
-                    // Then remove it from the copy on the internal storage
-                    favTrackManager.removeThisTrackFromFavorites(position);
+                    notifyDataSetInvalidated();
                 }
             });
 

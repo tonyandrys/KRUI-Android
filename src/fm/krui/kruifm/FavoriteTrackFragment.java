@@ -22,7 +22,7 @@ import java.util.HashMap;
 /**
  * Fragment which displays the user's favorite tracks.
  */
-public class FavoriteTrackFragment extends ListFragment implements TrackRemovalListener {
+public class FavoriteTrackFragment extends ListFragment {
 
     final private String TAG = FavoriteTrackFragment.class.getName();
     private View rootView;
@@ -43,8 +43,6 @@ public class FavoriteTrackFragment extends ListFragment implements TrackRemovalL
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        favTrackManager = new FavoriteTrackManager(getActivity());
-
         // Prepare the ActionBar for this fragment
         ActionBar actionBar = getActivity().getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
@@ -52,7 +50,7 @@ public class FavoriteTrackFragment extends ListFragment implements TrackRemovalL
         actionBar.setSubtitle(getString(R.string.favorite_tracks_subtitle));
 
         // Retrieve user's favorited tracks as a list.
-        FavoriteTrackManager favTrackManager = new FavoriteTrackManager(getActivity());
+        favTrackManager = new FavoriteTrackManager(getActivity());
         favTrackManager.loadFavoriteTracks();
         favoriteList = favTrackManager.getFavoriteList();
     }
@@ -76,13 +74,4 @@ public class FavoriteTrackFragment extends ListFragment implements TrackRemovalL
         favTrackManager.storeFavoriteTracks();
     }
 
-    /**
-     * Called whenever a list item is removed by the user. Keeps the data on storage in sync with user changes.
-     * @param newList
-     */
-    @Override
-    public void onTrackRemoved(ArrayList<HashMap<String,String>> newList) {
-        favoriteList = newList;
-        favTrackManager.storeFavoriteTracks();
-    }
 }
