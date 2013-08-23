@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" android:paddingBottom="5dp" android:paddingTop="5dp"
+                android:paddingLeft="5dp" android:paddingRight="5dp" android:background="@color/light_gray">
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-"
+            android:id="@+id/artist_separator_fav_textview"
+            android:layout_alignBottom="@+id/fav_artist_name_textview" android:layout_marginLeft="2.5dp"
+            android:layout_marginRight="2.5dp" android:layout_toRightOf="@+id/fav_artist_name_textview"/>
+
+    <TextView android:id="@+id/fav_track_name_textview"
+              android:textSize="16sp"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_alignBottom="@+id/fav_artist_name_textview"
+              android:layout_toRightOf="@+id/artist_separator_fav_textview" android:text="Track Name"/>
+
+    <TextView android:id="@+id/fav_artist_name_textview"
+              android:textSize="16sp"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_toRightOf="@+id/fav_albumart_playlist_imageview"
+              android:layout_alignTop="@+id/fav_albumart_playlist_imageview" android:layout_marginLeft="10dp"
+              android:layout_marginTop="2.5dp" android:text="Artist Name"/>
+
+    <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/fav_albumart_playlist_imageview" android:layout_alignParentLeft="true" android:layout_alignParentTop="true"
+            android:contentDescription="@string/album_art"
+            android:src="@drawable/noalbumart" android:maxHeight="20dp" android:maxWidth="20dp"
+            android:layout_marginBottom="5dp"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New Text"
+            android:id="@+id/fav_album_name_textview" android:layout_below="@+id/fav_artist_name_textview"
+            android:layout_alignLeft="@+id/fav_artist_name_textview" android:layout_marginTop="5dp"
+            android:textSize="16sp"/>
+    <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/delete_fav_track_imageview" android:src="@drawable/black_cross" android:layout_alignParentRight="true"
+            android:layout_centerVertical="true" android:background="@color/light_gray"/>
+
+
+</RelativeLayout>

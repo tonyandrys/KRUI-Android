@@ -30,6 +30,7 @@ public class StreamContainer extends FragmentActivity {
     private final int STREAM_TAB = 0;
     private final int PLAYLIST_TAB = 1;
     private final int DJ_TAB = 2;
+    private final int FAVORITE_TRACKS_TAB = 3;
 
     // Current fragment state
     protected int TAB_STATE = 0;
@@ -116,6 +117,15 @@ public class StreamContainer extends FragmentActivity {
         Fragment fragment = new DJInfoFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(DJ_TAB)).commit();
         TAB_STATE = DJ_TAB;
+        currentFragment = fragment;
+    }
+
+    // Favorite Tracks Fragment
+    public void showFavoriteTracks(View view) {
+        drawer.cancel();
+        Fragment fragment = new FavoriteTrackFragment();
+        getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(FAVORITE_TRACKS_TAB)).commit();
+        TAB_STATE = FAVORITE_TRACKS_TAB;
         currentFragment = fragment;
     }
 

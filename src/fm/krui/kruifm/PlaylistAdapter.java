@@ -15,7 +15,7 @@ import java.util.*;
 
 /**
  * fm.krui.kruifm - PlaylistAdapter
- * Created by Tony Andrys on 07/11/{2013}.
+ * Created by Tony Andrys on 07/11/2013.
  */
 
 public class PlaylistAdapter extends BaseAdapter {

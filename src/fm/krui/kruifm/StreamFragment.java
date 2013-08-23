@@ -2,7 +2,6 @@ package fm.krui.kruifm;
 
 import android.app.ActionBar;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -14,8 +13,9 @@ import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class StreamFragment extends Fragment implements TrackUpdateListener {
@@ -27,7 +27,6 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
     final private int THE_LAB = 1;
     final private int MAX_VOLUME = 100;
     final private int TRACK_UPDATE_INTERVAL = 30000; // Time to wait before checking for track updates in milliseconds.
-    final private String FAVORITE_TRACKS_FILENAME = "krui-favorite-track-arraylist";
 
     // HashMap Constants
     final private String KEY_ARTIST = "artist";
@@ -38,12 +37,12 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
     private String streamUrl = "http://krui.student-services.uiowa.edu:8200"; // Default value is 128kb/s 89.7 stream.
     private Timer updateTimer = new Timer();
     private PreferenceManager prefManager;
+    private FavoriteTrackManager favTrackManager;
     private int stationSpinnerPosition;
     private MediaPlayer mp;
     private boolean isPaused = false;
     private boolean isPrepared = false;
     ProgressDialog pd;
-    ArrayList<HashMap<String,String>> favoriteList = new ArrayList<HashMap<String,String>>();
 
     // Temporary
     private boolean trackIsFavorite = false;
@@ -77,8 +76,9 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        // Instantiate class members
         prefManager = new PreferenceManager(getActivity());
-        final Context context = (Context)getActivity();
+        favTrackManager = new FavoriteTrackManager(getActivity());
 
         // Build station selection spinner
         ArrayAdapter<CharSequence> stationAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.station_string_array, android.R.layout.simple_spinner_item);
@@ -95,10 +95,12 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
             }
         };
 
-        // Assign station selection spinner to ActionBar
+        // Prepare ActionBar
         ActionBar actionBar = getActivity().getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         actionBar.setListNavigationCallbacks(stationAdapter, stationListener);
+        actionBar.setTitle("");
+        actionBar.setSubtitle("");
 
         // Build play button listener
         final ImageView playButton = (ImageView)getActivity().findViewById(R.id.play_audio_imageview);
@@ -151,7 +153,7 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
                 if (trackIsFavorite) {
                     favoriteButton.setImageResource(R.drawable.star_unfilled_white);
                     trackIsFavorite = false;
-                    removeTrackFromFavorites();
+                    favTrackManager.removeTrackFromFavorites();
                 } else {
                     favoriteButton.setImageResource(R.drawable.star_filled_white);
                     trackIsFavorite = true;
@@ -221,13 +223,44 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
         rootLayout.startAnimation(flipAnimation);
     }
 
+    private void addTrackToFavorites() {
+        String trackName = "";
+        String albumName = "";
+        String artistName = "";
+        TextView trackNameTextView = (TextView)getActivity().findViewById(R.id.song_name_textview);
+        TextView albumNameTextView = (TextView)getActivity().findViewById(R.id.album_name_textview);
+        TextView artistNameTextView = (TextView)getActivity().findViewById(R.id.artist_name_textview);
+
+        // Extract text from their views
+        try {
+            trackName = trackNameTextView.getText().toString();
+            albumName = albumNameTextView.getText().toString();
+            artistName = artistNameTextView.getText().toString();
+        } catch (NullPointerException e) {
+            Log.e(TAG, "Caught NullPointerException when extracting values from StreamFragment textviews!");
+            e.printStackTrace();
+        }
+
+        // Build a Track from currently playing track.
+        Track track = new Track();
+        track.setTitle(trackName);
+        track.setAlbum(albumName);
+        track.setArtist(artistName);
+
+        // Add this track to favorites
+        favTrackManager.addTrackToFavorites(track);
+    }
+
+    private void removeTrackFromFavorites() {
+        favTrackManager.removeTrackFromFavorites();
+    }
+
     @Override
     public void onResume() {
         super.onResume();
 
         // Retrieve favorites list from memory
-        favoriteList = getFavoriteTracks();
-        Log.v(TAG, favoriteList.size() + " favorite tracks retrieved from memory.");
+        favTrackManager.loadFavoriteTracks();
 
         // If audio is still playing, resume the update timer when this fragment comes back into focus.
         if (mp.isPlaying()) {
@@ -251,161 +284,16 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
 
         // Store favoriteMap into memory
         Log.v(TAG, "Attempting to save favorite tracks...");
-        storeFavoriteTracks();
-
-
-    }
-
-    /**
-     * Writes the favorite tracks to internal memory for later retrieval
-     */
-    private void storeFavoriteTracks() {
-        File file = new File(getActivity().getFilesDir(), FAVORITE_TRACKS_FILENAME);
-        try {
-            FileOutputStream fileOutputStream = new FileOutputStream(file);
-            ObjectOutputStream objectOutputStream= new ObjectOutputStream(fileOutputStream);
-            objectOutputStream.writeObject(favoriteList);
-            objectOutputStream.close();
-        } catch (FileNotFoundException e) {
-            Log.e(TAG, "ERROR WHEN WRITING FAVORITE TRACKS: FileNotFoundException!");
-            e.printStackTrace();
-        } catch (IOException e) {
-            Log.e(TAG, "ERROR WHEN WRITING FAVORITE TRACKS: IOException!");
-            e.printStackTrace();
-        }
-
-
-        /*File file = new File(FAVORITE_TRACKS_FILENAME;
-        try {
-            FileOutputStream f = new FileOutputStream(file);
-            ObjectOutputStream s = new ObjectOutputStream(f);
-            s.writeObject(favoriteList);
-            s.flush();
-            s.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-        Log.v(TAG, "Stored " + favoriteList.size() + " favorite tracks into memory.");
-    }
-
-    /**
-     * Retrieves favorite tracks from internal memory
-     * @return HashMap of all favorite tracks, each track being stored in its own HashMap.
-     */
-    private ArrayList<HashMap<String,String>> getFavoriteTracks() {
-        ArrayList<HashMap<String,String>> arrayList = new ArrayList<HashMap<String,String>>();
-        File file = new File(getActivity().getFilesDir(), FAVORITE_TRACKS_FILENAME);
-        try {
-            FileInputStream fileInputStream = new FileInputStream(file);
-            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-
-            arrayList = (ArrayList<HashMap<String,String>>)objectInputStream.readObject();
-            objectInputStream.close();
-            return arrayList;
-        } catch (FileNotFoundException e) {
-            Log.e(TAG, "ERROR WHEN RETRIEVING FAVORITE TRACKS: FileNotFoundException!");
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            Log.e(TAG, "ERROR WHEN RETRIEVING FAVORITE TRACKS: ClassNotFoundException!");
-
-            e.printStackTrace();
-        } catch (OptionalDataException e) {
-            Log.e(TAG, "ERROR WHEN RETRIEVING FAVORITE TRACKS: OptionalDataException!");
-
-            e.printStackTrace();
-        } catch (StreamCorruptedException e) {
-            Log.e(TAG, "ERROR WHEN RETRIEVING FAVORITE TRACKS: StreamCorruptedException!!");
-
-            e.printStackTrace();
-        } catch (IOException e) {
-            Log.e(TAG, "ERROR WHEN RETRIEVING FAVORITE TRACKS: IOException!");
-            e.printStackTrace();
-        }
-
-        /*File file = new File(FAVORITE_TRACKS_FILENAME;
-        try {
-            FileInputStream f = new FileInputStream(file);
-            ObjectInputStream s = new ObjectInputStream(f);
-            map = (ArrayList<HashMap<String,String>>) s.readObject(); // FIXME: This probably isn't good...
-            s.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }*/
-
-        return arrayList;
-    }
-
-    /**
-     * Adds the currently playing track to the user's favorites.
-     */
-    private void addTrackToFavorites() {
-        // Ensure the map is in scope before writing to it.
-        if (favoriteList != null) {
-            TextView trackNameTextView = (TextView)getActivity().findViewById(R.id.song_name_textview);
-            TextView artistNameTextView = (TextView)getActivity().findViewById(R.id.artist_name_textview);
-            TextView albumNameTextView = (TextView)getActivity().findViewById(R.id.album_name_textview);
-            String trackName = "";
-            String artistName = "";
-            String albumName = "";
-
-            // Get track name, album, and artist of currently playing track.
-            try {
-                trackName = trackNameTextView.getText().toString();
-                artistName = artistNameTextView.getText().toString();
-                albumName = albumNameTextView.getText().toString();
-            } catch (NullPointerException e) {
-                Log.e(TAG, "NullPointerException caught when saving favorite track!");
-            }
-
-            // Write the information to the track map.
-            HashMap<String, String> trackMap = new HashMap<String, String>();
-            trackMap.put(KEY_ARTIST, artistName);
-            trackMap.put(KEY_ALBUM, albumName);
-            trackMap.put(KEY_TRACK, trackName);
-            // Add this track to the favorite hashMap.
-            favoriteList.add(trackMap);
-            Toast.makeText(getActivity(), "Added " + trackName + " by " + artistName + "to favorites.", Toast.LENGTH_SHORT).show();
-
-            Log.v(TAG, "----------");
-            Log.v(TAG, "Favorite list is now:");
-            for (int i=0; i<favoriteList.size(); i++) {
-                HashMap<String, String> map = favoriteList.get(i);
-                Log.v(TAG, "** Track " + i);
-                Log.v(TAG, "Artist: " + map.get(KEY_ARTIST));
-                Log.v(TAG, "Name: " + map.get(KEY_ALBUM));
-                Log.v(TAG, "Album: " + map.get(KEY_TRACK));
-
-            }
-            Log.v(TAG, "----------");
-
-        }
+        favTrackManager.storeFavoriteTracks();
 
     }
 
-    /**
-     * Removes last added track from favorites.
-     */
-    private void removeTrackFromFavorites() {
-        HashMap<String, String> lastTrack = favoriteList.get(favoriteList.size()-1);
-        Toast.makeText(getActivity(), "Removed " + lastTrack.get(KEY_TRACK) + " by " + lastTrack.get(KEY_ARTIST) + "from favorites.", Toast.LENGTH_SHORT).show();
-        // Ensure there is something in the list to remove before removing a favorite track.
-        if (favoriteList.size()>0) {
-            favoriteList.remove(favoriteList.size()-1);
-        }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
 
-        Log.v(TAG, "----------");
-        Log.v(TAG, "Favorite list is now:");
-        for (int i=0; i<favoriteList.size(); i++) {
-            HashMap<String, String> map = favoriteList.get(i);
-            Log.v(TAG, "** Track " + i);
-            Log.v(TAG, "Artist: " + map.get(KEY_ARTIST));
-            Log.v(TAG, "Name: " + map.get(KEY_ALBUM));
-            Log.v(TAG, "Album: " + map.get(KEY_TRACK));
-
-        }
-        Log.v(TAG, "----------");
+        // Stop updating track information
+        setUpdateTimer(false);
     }
 
     /**
