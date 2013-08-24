@@ -36,6 +36,7 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
     /* Class members */
     private String streamUrl = "http://krui.student-services.uiowa.edu:8200"; // Default value is 128kb/s 89.7 stream.
     private Timer updateTimer = new Timer();
+    private TimerTask updateTimerTask;
     private PreferenceManager prefManager;
     private FavoriteTrackManager favTrackManager;
     private int stationSpinnerPosition;
@@ -579,7 +580,7 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
 
         // If the timer is to be enabled, assign the TimerTask and schedule updates.
         if (startTimer) {
-            TimerTask updateTimerTask = new TimerTask() {
+            updateTimerTask = new TimerTask() {
                 @Override
                 public void run() {
                     Log.v(TAG, "Timer task has been called! Updating track info...");
@@ -593,8 +594,8 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
 
         // If the timer is to be disabled, cancel and purge the timer object.
         else {
+            updateTimerTask.cancel();
             updateTimer.cancel();
-            updateTimer.purge();
             Log.v(TAG, "Timer stopped and task has been purged.");
         }
     }

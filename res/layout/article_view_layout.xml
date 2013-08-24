@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/view_article_container_scrollView" android:fillViewport="true">
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" android:padding="10dp" android:background="@color/light_gray">
+
+        <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Article Title"
+                android:id="@+id/view_article_title_textview" android:layout_alignParentLeft="true" android:layout_alignParentTop="true"
+                android:textStyle="bold" android:gravity="center_horizontal" android:textSize="20sp"/>
+        <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="By: Tony Andrys"
+                android:id="@+id/view_article_author_textview" android:layout_alignLeft="@+id/view_article_title_textview" android:layout_below="@+id/view_article_title_textview"
+                android:layout_margin="5dp" android:textStyle="italic" android:gravity="center_horizontal"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Article Text!"
+                android:id="@+id/view_article_text_textview" android:layout_alignParentTop="false"
+                android:layout_below="@+id/view_article_author_textview" android:layout_marginTop="5dp"/>
+        <FrameLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" android:id="@+id/article_view_loading_framelayout"
+                android:background="@color/light_gray" android:visibility="visible">
+            <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/progressBar" android:layout_gravity="center" android:background="@drawable/custom_progress_bar"/>
+        </FrameLayout>
+    </RelativeLayout>
+</ScrollView>

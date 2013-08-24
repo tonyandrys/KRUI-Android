@@ -1,10 +1,12 @@
 package fm.krui.kruifm;
 
+import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
@@ -30,7 +32,13 @@ public class PlaylistFragment extends ListFragment implements PlaylistListener {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        ActionBar actionBar = getActivity().getActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+        actionBar.setTitle(getString(R.string.extended_playlist_title));
+        actionBar.setSubtitle(getString(R.string.extended_playlist_subtitle));
+
         // Initialize track list and play count. For now this is arbitrary, this would be a cool user setting.
+        showLoadingScreen(true);
         int playCount = 100;
 
         // Prepare for network operations
@@ -60,8 +68,23 @@ public class PlaylistFragment extends ListFragment implements PlaylistListener {
         // Bind ScheduleAdapter to this list to display its data.
         setListAdapter(adapter);
 
+        showLoadingScreen(false);
+
         final ListView lv = getListView();
         lv.setTextFilterEnabled(true);
+    }
+
+    /**
+     * Enables and disables the loading screen on this fragment
+     * @param isLoading true to show, false to hide
+     */
+    private void showLoadingScreen(boolean isLoading) {
+        FrameLayout frameLayout = (FrameLayout)rootView.findViewById(R.id.playlist_loading_framelayout);
+        if (isLoading) {
+            frameLayout.setVisibility(View.VISIBLE);
+        } else {
+            frameLayout.setVisibility(View.INVISIBLE);
+        }
     }
 
 }

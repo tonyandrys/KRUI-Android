@@ -23,6 +23,11 @@ public class StreamContainer extends FragmentActivity {
 
     private static String TAG = StreamContainer.class.getName();
 
+    // KRUI Wordpress JSON Feeds
+    final String musicURL = "http://krui.fm/category/music/?json=1";
+    final String newsURL = "http://krui.fm/category/news/?json=1";
+    final String sportsURL = "http://krui.fm/category/sports/?json=1";
+
     Drawer drawer;
     Fragment currentFragment;
 
@@ -31,6 +36,9 @@ public class StreamContainer extends FragmentActivity {
     private final int PLAYLIST_TAB = 1;
     private final int DJ_TAB = 2;
     private final int FAVORITE_TRACKS_TAB = 3;
+    private final int MUSIC_ARTICLES_TAB = 4;
+    private final int NEWS_ARTICLES_TAB = 5;
+    private final int SPORTS_ARTICLES_TAB = 6;
 
     // Current fragment state
     protected int TAB_STATE = 0;
@@ -126,6 +134,33 @@ public class StreamContainer extends FragmentActivity {
         Fragment fragment = new FavoriteTrackFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(FAVORITE_TRACKS_TAB)).commit();
         TAB_STATE = FAVORITE_TRACKS_TAB;
+        currentFragment = fragment;
+    }
+
+    public void showMusicArticles(View view) {
+        drawer.cancel();
+        String title = getString(R.string.music_content_sidebar);
+        Fragment fragment = new WordpressViewer(title, musicURL);
+        getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(MUSIC_ARTICLES_TAB)).commit();
+        TAB_STATE = MUSIC_ARTICLES_TAB;
+        currentFragment = fragment;
+    }
+
+    public void showNewsArticles(View view) {
+        drawer.cancel();
+        String title = getString(R.string.news_content_sidebar);
+        Fragment fragment = new WordpressViewer(title, newsURL);
+        getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(NEWS_ARTICLES_TAB)).commit();
+        TAB_STATE = NEWS_ARTICLES_TAB;
+        currentFragment = fragment;
+    }
+
+    public void showSportsArticles(View view) {
+        drawer.cancel();
+        String title = getString(R.string.sports_content_sidebar);
+        Fragment fragment = new WordpressViewer(title, sportsURL);
+        getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(SPORTS_ARTICLES_TAB)).commit();
+        TAB_STATE = SPORTS_ARTICLES_TAB;
         currentFragment = fragment;
     }
 

@@ -1,7 +1,6 @@
 package fm.krui.kruifm;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
 import org.json.JSONArray;
@@ -27,7 +26,6 @@ import java.util.TimeZone;
 public class PlaylistFetcher extends AsyncTask<Integer, Void, ArrayList<HashMap<String, Track>>>{
 
     private static final String TAG = PlaylistFetcher.class.getName();
-    protected ProgressDialog pd;
     protected Activity activity;
     protected PlaylistListener listener;
 
@@ -39,14 +37,6 @@ public class PlaylistFetcher extends AsyncTask<Integer, Void, ArrayList<HashMap<
     @Override
     protected void onPreExecute() {
 
-        // Setup the ProgressDialog and display before pulling any resources
-        String pdTitle = activity.getResources().getString(R.string.loading_playlist);
-        String pdMessage = activity.getResources().getString(R.string.please_wait);
-        pd = new ProgressDialog(activity);
-        pd.setTitle(pdTitle);
-        pd.setMessage(pdMessage);
-        pd.setCancelable(false);
-        pd.show();
     }
 
     @Override
@@ -134,7 +124,6 @@ public class PlaylistFetcher extends AsyncTask<Integer, Void, ArrayList<HashMap<
     @Override
     protected void onPostExecute(ArrayList<HashMap<String, Track>> result) {
         Log.v(TAG, "onPostExecute called!");
-        pd.dismiss();
         listener.onPlaylistFinish(result);
 
     }

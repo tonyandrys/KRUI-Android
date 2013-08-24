@@ -10,4 +10,14 @@
                   android:background="@color/light_gray"
                   android:drawSelectorOnTop="false"/>
 
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" android:id="@+id/playlist_loading_framelayout"
+            android:background="@color/light_gray" android:visibility="visible">
+        <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/progressBar" android:layout_gravity="center" android:background="@drawable/custom_progress_bar"/>
+        </FrameLayout>
+
 </RelativeLayout>
