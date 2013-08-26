@@ -1,7 +1,7 @@
 package fm.krui.kruifm;
 
-import android.app.ActionBar;
-import android.app.ProgressDialog;
+import android.app.*;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -9,6 +9,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
@@ -58,7 +59,6 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-
             case R.id.call_studio_button:
                 dialStudio();
                 break;
@@ -98,10 +98,7 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
 
         // Prepare ActionBar
         ActionBar actionBar = getActivity().getActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         actionBar.setListNavigationCallbacks(stationAdapter, stationListener);
-        actionBar.setTitle("");
-        actionBar.setSubtitle("");
 
         // Build play button listener
         final ImageView playButton = (ImageView)getActivity().findViewById(R.id.play_audio_imageview);
@@ -594,9 +591,11 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
 
         // If the timer is to be disabled, cancel and purge the timer object.
         else {
-            updateTimerTask.cancel();
-            updateTimer.cancel();
-            Log.v(TAG, "Timer stopped and task has been purged.");
+            if (updateTimerTask != null && updateTimer != null) {
+                updateTimerTask.cancel();
+                updateTimer.cancel();
+                Log.v(TAG, "Timer stopped and task has been purged.");
+            }
         }
     }
 
@@ -610,5 +609,37 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
         trackIsFavorite = false;
         favoriteButton.setImageResource(R.drawable.star_unfilled_white);
         Log.v(TAG, "New track has been updated. Favorite status has been reset.");
+    }
+
+    private void toggleAudioNotification(boolean isPlaying) {
+        // Build notification
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getActivity());
+        notificationBuilder.setSmallIcon(R.drawable.play_icon_white);
+        notificationBuilder.setContentTitle(getString(R.string.notification_title));
+        notificationBuilder.setContentText(getString(R.string.notification_subtitle));
+
+        // Create intent for activity in app
+        Intent resultIntent = new Intent(getActivity(), StreamContainer.class);
+
+        // Stack builder object contains an artificial back stack for the activity,
+        // ensuring the user will hit the home screen if they press back.
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getActivity());
+
+        // Add back stack for intent
+        stackBuilder.addParentStack(StreamContainer.class);
+
+        // Add intent that starts activity to the stop of the stack
+        stackBuilder.addNextIntent(resultIntent);
+
+        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        notificationBuilder.setContentIntent(resultPendingIntent);
+
+        // Use NotificationManger to trigger the intent
+        NotificationManager notificationManager = (NotificationManager)getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+        final int NOTIFICATION_ID = 1;
+        //notificationManager.notify(NOTIFICATION_ID, notificationBuilder.notify());
+
+
+
     }
 }

@@ -1,6 +1,5 @@
 package fm.krui.kruifm;
 
-import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
@@ -42,12 +41,6 @@ public class FavoriteTrackFragment extends ListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        // Prepare the ActionBar for this fragment
-        ActionBar actionBar = getActivity().getActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setTitle(getString(R.string.favorite_tracks_title));
-        actionBar.setSubtitle(getString(R.string.favorite_tracks_subtitle));
 
         // Retrieve user's favorited tracks as a list.
         favTrackManager = new FavoriteTrackManager(getActivity());

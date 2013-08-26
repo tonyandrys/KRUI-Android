@@ -1,6 +1,5 @@
 package fm.krui.kruifm;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -46,10 +45,6 @@ public class WordpressViewer extends ListFragment implements ArticleDownloadList
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ActionBar actionBar = getActivity().getActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setTitle(title);
-
         // Download articles from URL
         showLoadingScreen(true);
         WordpressFetcher fetcher = new WordpressFetcher(url, this);
@@ -93,4 +88,8 @@ public class WordpressViewer extends ListFragment implements ArticleDownloadList
 
     }
 
+    @Override
+    public void onBackPressed() {
+        //do your intent here
+    }
 }

@@ -74,6 +74,7 @@ public class StreamContainer extends FragmentActivity {
         fragment.setHasOptionsMenu(true);
         fragment.setMenuVisibility(true);
         getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(STREAM_TAB)).commit();
+        applyActionBarParameters(STREAM_TAB);
         currentFragment = (StreamFragment)getSupportFragmentManager().findFragmentById(STREAM_TAB);
     }
 
@@ -97,6 +98,50 @@ public class StreamContainer extends FragmentActivity {
         drawer.show();
     }
 
+    /**
+     * Styles the ActionBar appropriately based on the fragment to be loaded
+     * @param fragmentId Integer identifier of fragment
+     */
+    private void applyActionBarParameters(int fragmentId) {
+        // Default params
+        ActionBar actionBar = getActionBar();
+        String title = "";
+        String subTitle = "";
+        int navigationMode = ActionBar.NAVIGATION_MODE_STANDARD;
+
+        // Set params based on opening tab
+        switch (fragmentId) {
+            case STREAM_TAB:
+                navigationMode = ActionBar.NAVIGATION_MODE_LIST;
+                break;
+            case PLAYLIST_TAB:
+                title = getString(R.string.extended_playlist_title);
+                subTitle = getString(R.string.extended_playlist_subtitle);
+                break;
+            case DJ_TAB:
+                title = getString(R.string.dj_info_tab);
+                break;
+            case FAVORITE_TRACKS_TAB:
+                title = getString(R.string.favorite_tracks_title);
+                subTitle = getString(R.string.favorite_tracks_subtitle);
+                break;
+            case MUSIC_ARTICLES_TAB:
+                title = getString(R.string.music_content_sidebar);
+                break;
+            case NEWS_ARTICLES_TAB:
+                title = getString(R.string.news_content_sidebar);
+                break;
+            case SPORTS_ARTICLES_TAB:
+                title = getString(R.string.sports_content_sidebar);
+                break;
+        }
+
+        // Apply parameters
+        actionBar.setNavigationMode(navigationMode);
+        actionBar.setTitle(title);
+        actionBar.setSubtitle(subTitle);
+    }
+
     /* Start sidebar controller functions (one for each sidebar item) */
 
     // Listen Fragment
@@ -107,6 +152,7 @@ public class StreamContainer extends FragmentActivity {
         fragment.setMenuVisibility(true);
         getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(STREAM_TAB)).commit();
         TAB_STATE = STREAM_TAB;
+        applyActionBarParameters(TAB_STATE);
         currentFragment = fragment;
     }
 
@@ -116,6 +162,7 @@ public class StreamContainer extends FragmentActivity {
         Fragment fragment = new PlaylistFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(PLAYLIST_TAB)).commit();
         TAB_STATE = PLAYLIST_TAB;
+        applyActionBarParameters(TAB_STATE);
         currentFragment = fragment;
     }
 
@@ -125,6 +172,7 @@ public class StreamContainer extends FragmentActivity {
         Fragment fragment = new DJInfoFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(DJ_TAB)).commit();
         TAB_STATE = DJ_TAB;
+        applyActionBarParameters(TAB_STATE);
         currentFragment = fragment;
     }
 
@@ -134,15 +182,18 @@ public class StreamContainer extends FragmentActivity {
         Fragment fragment = new FavoriteTrackFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(FAVORITE_TRACKS_TAB)).commit();
         TAB_STATE = FAVORITE_TRACKS_TAB;
+        applyActionBarParameters(TAB_STATE);
         currentFragment = fragment;
     }
 
+    // THESE SHOULD ALL BRING BACK THE STREAM CONTROLLER
     public void showMusicArticles(View view) {
         drawer.cancel();
         String title = getString(R.string.music_content_sidebar);
         Fragment fragment = new WordpressViewer(title, musicURL);
         getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(MUSIC_ARTICLES_TAB)).commit();
         TAB_STATE = MUSIC_ARTICLES_TAB;
+        applyActionBarParameters(TAB_STATE);
         currentFragment = fragment;
     }
 
@@ -152,6 +203,7 @@ public class StreamContainer extends FragmentActivity {
         Fragment fragment = new WordpressViewer(title, newsURL);
         getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(NEWS_ARTICLES_TAB)).commit();
         TAB_STATE = NEWS_ARTICLES_TAB;
+        applyActionBarParameters(TAB_STATE);
         currentFragment = fragment;
     }
 
@@ -161,6 +213,7 @@ public class StreamContainer extends FragmentActivity {
         Fragment fragment = new WordpressViewer(title, sportsURL);
         getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(SPORTS_ARTICLES_TAB)).commit();
         TAB_STATE = SPORTS_ARTICLES_TAB;
+        applyActionBarParameters(TAB_STATE);
         currentFragment = fragment;
     }
 
@@ -170,4 +223,5 @@ public class StreamContainer extends FragmentActivity {
         Intent transIntent = new Intent(this, KRUIScheduleActivity.class);
         startActivity(transIntent);
     }
+
 }
