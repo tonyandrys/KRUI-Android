@@ -88,8 +88,4 @@ public class WordpressViewer extends ListFragment implements ArticleDownloadList
 
     }
 
-    @Override
-    public void onBackPressed() {
-        //do your intent here
-    }
 }

@@ -8,7 +8,7 @@ package fm.krui.kruifm;
  *         (C) 2013 - Tony Andrys
  */
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 
 /**
@@ -28,13 +28,13 @@ public class PreferenceManager {
     public final String DOWNLOAD_ALBUM_ART = "dlAlbumArt";
 
     SharedPreferences prefs;
-    Activity activity;
+    Context context;
 
-    public PreferenceManager(Activity activity) {
-        this.activity = activity;
+    public PreferenceManager(Context context) {
+        this.context = context;
 
         // Restore user prefs
-        prefs = activity.getSharedPreferences(PREFS_NAME, 0);
+        prefs = context.getSharedPreferences(PREFS_NAME, 0);
     }
 
     public void setStreamQuality(int quality) {

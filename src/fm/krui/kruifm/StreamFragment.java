@@ -1,20 +1,18 @@
 package fm.krui.kruifm;
 
-import android.app.*;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
+import android.app.ActionBar;
+import android.app.ProgressDialog;
+import android.content.*;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
-import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -26,8 +24,6 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
     /* Constants */
     final private int MAIN_STUDIO = 0;
     final private int THE_LAB = 1;
-    final private int MAX_VOLUME = 100;
-    final private int TRACK_UPDATE_INTERVAL = 30000; // Time to wait before checking for track updates in milliseconds.
 
     // HashMap Constants
     final private String KEY_ARTIST = "artist";
@@ -41,10 +37,15 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
     private PreferenceManager prefManager;
     private FavoriteTrackManager favTrackManager;
     private int stationSpinnerPosition;
-    private MediaPlayer mp;
-    private boolean isPaused = false;
-    private boolean isPrepared = false;
+    private boolean isPlaying = false;
     ProgressDialog pd;
+
+    // FIXME: This member isn't efficient
+    SharedPreferences trackPrefs;
+
+
+    // Service broadcast receiver
+    private BroadcastReceiver broadcastReceiver;
 
     // Temporary
     private boolean trackIsFavorite = false;
@@ -80,6 +81,17 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
         // Instantiate class members
         prefManager = new PreferenceManager(getActivity());
         favTrackManager = new FavoriteTrackManager(getActivity());
+
+        // FIXME: Move these to PreferenceManager after expanding its scope for cleaner code
+        trackPrefs = getActivity().getSharedPreferences(StreamService.PREFS_NAME, 0);
+
+        // Instantiate broadcast receiver
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                processBroadcastCommand(intent);
+            }
+        };
 
         // Build station selection spinner
         ArrayAdapter<CharSequence> stationAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.station_string_array, android.R.layout.simple_spinner_item);
@@ -117,7 +129,7 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
             // When seek bar progress is changed, change the audio of the media player appropriately.
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                setVolume(progress);
+                // Send new volume via intent? Will this be slow?
             }
 
             @Override
@@ -200,8 +212,6 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
             }
         });
 
-        // Build audio player using default settings.
-        mp = buildAudioPlayer();
     }
 
     /**
@@ -260,25 +270,14 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
         // Retrieve favorites list from memory
         favTrackManager.loadFavoriteTracks();
 
-        // If audio is still playing, resume the update timer when this fragment comes back into focus.
-        if (mp.isPlaying()) {
-            setUpdateTimer(true);
-        }
+        // Register broadcast receiver to receive updates
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(broadcastReceiver, new IntentFilter(StreamService.BROADCAST_MESSAGE));
+
     }
 
     @Override
     public void onPause() {
         super.onPause();
-
-        // If audio is not playing, reset MediaPlayer object to prevent memory leaks.
-        if (mp.isPlaying() == false) {
-            mp.reset();
-            isPaused = false;
-            Log.v(TAG, "User leaving activity and player is stopped. Releasing MediaPlayer.");
-        }
-
-        // Stop updating track information
-        setUpdateTimer(false);
 
         // Store favoriteMap into memory
         Log.v(TAG, "Attempting to save favorite tracks...");
@@ -290,62 +289,68 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
     public void onDestroy() {
         super.onDestroy();
 
-        // Stop updating track information
-        setUpdateTimer(false);
     }
 
     /**
-     * Builds and returns a configured, unprepared MediaPlayer and attach an error handler.
+     * Handles all broadcast commands received from audio service
+     * @param intent Broadcasted intent
      */
-    public MediaPlayer buildAudioPlayer() {
+    private void processBroadcastCommand(Intent intent) {
 
-        // Build MediaPlayer
-        mp = new MediaPlayer();
+        // Get the specific command from intent
+        String broadcastCommand = intent.getStringExtra(StreamService.BROADCAST_KEY);
 
-        try {
-            mp.reset();
-            mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mp.setDataSource(streamUrl);
-        } catch (IllegalArgumentException e) {
-            Log.e(TAG, "Caught IllegalArgumentException: ");
-            e.printStackTrace();
-        } catch (IllegalStateException e) {
-            Log.e(TAG, "Caught IllegalStateException: ");
-            e.printStackTrace();
-        } catch (SecurityException e) {
-            Log.e(TAG, "Caught SecurityException: ");
-            e.printStackTrace();
-        } catch (IOException e) {
-            Log.e(TAG, "Caught IOException: ");
-            e.printStackTrace();
-        }
+        if (broadcastCommand != null) {
 
-        // Attach error handler to instance.
-        mp.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            // If play command is received, store state and update UI appropriately.
+            if (broadcastCommand.equals(StreamService.BROADCAST_COMMAND_PLAY)) {
+                isPlaying = true;
 
-            @Override
-            public boolean onError(MediaPlayer arg0, int arg1, int arg2) {
-
-                // If there is an error in playback, stop and inform the user.
-                pd.dismiss();
-                mp = buildAudioPlayer();
-                Toast.makeText(getActivity(), "Failed to load the stream. Please check your internet connection and try again.", Toast.LENGTH_LONG).show();
-                Log.e(TAG, "Error in playback. onError was called.");
-                return true;
+                // Change image of button to pause icon.
+                ImageView playButton = (ImageView)getActivity().findViewById(R.id.play_audio_imageview);
+                playButton.setImageResource(R.drawable.pause_icon_white);
             }
 
-        });
+            // If pause command is received, store state and update UI appropriately.
+            else if (broadcastCommand.equals(StreamService.BROADCAST_COMMAND_PAUSE)) {
+                isPlaying = false;
 
-        return mp;
+                // Change image of button to play icon.
+                ImageView playButton = (ImageView)getActivity().findViewById(R.id.play_audio_imageview);
+                playButton.setImageResource(R.drawable.play_icon_white);
+            }
+
+            // If stop command is received, store state and clear UI elements.
+            // FIXME: Is having a separate stop command necessary when a pause command exists? Maybe or maybe not. Right now it just does the same thing...
+            else if (broadcastCommand.equals(StreamService.BROADCAST_COMMAND_STOP)) {
+                isPlaying = false;
+
+                // Change image of button to play icon.
+                ImageView playButton = (ImageView)getActivity().findViewById(R.id.play_audio_imageview);
+                playButton.setImageResource(R.drawable.play_icon_white);
+            }
+
+            // If track update command is received, retrieve playing track information and apply it to UI.
+            else if (broadcastCommand.equals(StreamService.BROADCAST_COMMAND_UPDATE)) {
+                // Update UI with new information
+                updateTrackInfo();
+            }
+        } else {
+            Log.e(TAG, "ERROR: Broadcast received but could not extract command.");
+        }
+
     }
 
     protected void changeUrl(int spinnerPosition) {
         // URL depends on spinner position!
         // This turned out to be kind of cool, but this could cause problems if this order ever changes!
-        String streamUrl;
         streamUrl = getStreamUrl(spinnerPosition);
-        Log.v(TAG, "Stream URL changed to " + streamUrl);
-        reconfigureStream(streamUrl);
+
+        Log.v(TAG, "Requesting audio service to change url to " + streamUrl);
+        Intent intent = new Intent(getActivity(), StreamService.class);
+        intent.putExtra(StreamService.INTENT_STREAM_URL, streamUrl);
+        intent.setAction(StreamService.ACTION_CHANGE_URL);
+        getActivity().startService(intent);
     }
 
     /**
@@ -382,106 +387,32 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
                     Toast.makeText(getActivity(), "The Lab, Low Quality stream selected", Toast.LENGTH_SHORT).show();
                 }
         }
-        isPrepared = false;
         return URL;
     }
 
-    /**
-     * Changes stream source to passed URL.
-     * @param newStreamUrl URL of the new target for player.
-     */
-    protected void reconfigureStream(String newStreamUrl) {
-        streamUrl = newStreamUrl;
-
-        // Stop stream if it is currently playing to prevent state exceptions
-        if (mp.isPlaying()) {
-            Log.v(TAG, "Stream source changed by user. Rebuilding stream.");
-            mp.stop();
-            Log.i(TAG, "Stream playback stopped.");
-        }
-
-        // Rebuild player with new stream URL.
-        mp.reset();
-        mp = buildAudioPlayer();
-    }
-
-    /**
-     * Stops audio, drops connection to stream, and returns Media Player to an unprepared state. Called by a button onClick event.
-     * @param v Button pressed by user.
-     */
-    public void stopAudio(View v) {
-        mp.stop();
-        Log.i(TAG, "Stream playback stopped.");
-    }
-
-    public void prepareAudio(ImageView playButton) {
-        try {
-            Log.v(TAG, "Attempting to play stream from " + streamUrl);
-            playButton.setImageResource(R.drawable.pause_icon_white);
-            mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-
-                    // When the stream is buffered, kill prompt and start playing automatically.
-                    pd.dismiss();
-                    mp.start();
-                    isPrepared = true;
-                    Log.i(TAG, "Stream playback started.");
-
-                    // Start the update timer.
-                    setUpdateTimer(true);
-                }
-            });
-
-            // Prepares stream without blocking UI Thread
-            mp.prepareAsync();
-
-        } catch (IllegalStateException e) {
-            Log.e(TAG, "Caught IllegalStateException when preparing: ");
-            playButton.setImageResource(R.drawable.play_icon_white);
-            e.printStackTrace();
-        }
-
-        // Stop user input while buffering by displaying ProgressDialog
-        pd = new ProgressDialog(getActivity());
-        pd.setCancelable(true);
-        pd.setCanceledOnTouchOutside(false);
-        pd = ProgressDialog.show(getActivity(), "Loading...", "Buffering Stream", true, true, new DialogInterface.OnCancelListener() {
-
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                pd.dismiss();
-
-            }
-
-        });
-    }
-
     public void pauseAudio(ImageView playButton) {
-        // Pause the audio
-        mp.pause();
-        isPaused = true;
 
-        // Stop the update timer
-        setUpdateTimer(false);
+        // Request service to pause audio
+        Intent intent = new Intent(getActivity(), StreamService.class);
+        intent.setAction(StreamService.ACTION_PAUSE);
+        getActivity().startService(intent);
+        isPlaying = false;
 
-        // Change image of playButton to play icon.
+        // Change image of button to play icon.
         playButton.setImageResource(R.drawable.play_icon_white);
-        Log.i(TAG, "Stream paused.");
     }
 
-    public void resumeAudio(ImageView playButton) {
-        // Resume the audio
-        mp.start();
-        isPaused = false;
+    public void startAudio(ImageView playButton) {
 
-        // Start update timer
-        setUpdateTimer(true);
+        // Request service to start audio
+        Intent intent = new Intent(getActivity(), StreamService.class);
+        intent.putExtra(StreamService.INTENT_STREAM_URL, streamUrl);
+        intent.setAction(StreamService.ACTION_PLAY);
+        getActivity().startService(intent);
+        isPlaying = true;
 
-        // Change image of playButton to pause icon.
+        // Change image of button to pause icon.
         playButton.setImageResource(R.drawable.pause_icon_white);
-        Log.i(TAG, "Stream resumed.");
     }
 
     /**
@@ -492,53 +423,69 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
     public void handleAudio(ImageView playButton) {
 
         // If media player is playing, pause the audio.
-        if (mp.isPlaying()) {
+        if (isPlaying) {
             pauseAudio(playButton);
-        }
-
-        // If no sound is playing, check if the player is prepared.
-        else {
-
-            // If the media player is prepared, quickly resume the audio.
-            if (isPrepared) {
-                resumeAudio(playButton);
-            }
-            // If the media player is NOT prepared, it should be prepared before playing.
-            else {
-                prepareAudio(playButton);
-            }
+        } else {
+            startAudio(playButton);
         }
     }
 
     /**
-     * Sets volume of the media player based on the value of the volume seek bar. Volume settings are logarithmic,
-     * so conversion is required before setting volume.
-     * @param soundVolume Current setting of seekBar. Valid parameters are in [0,100]
-     */
-    public void setVolume(int soundVolume) {
-        if (isPrepared) {
-            final float volume = (float) (1 - (Math.log(MAX_VOLUME - soundVolume) / Math.log(MAX_VOLUME)));
-            mp.setVolume(volume, volume);
-        }
-    }
-
-    /**
-     * Refreshes the title, album name, art, and other info and updates the UI.
+     * Refreshes the title, album name, art, and other info from SharedPreferences and updates the UI.
      */
     public void updateTrackInfo() {
-        RelativeLayout container = (RelativeLayout)getActivity().findViewById(R.id.stream_album_art_container);
         TextView songNameTextView = (TextView)getActivity().findViewById(R.id.song_name_textview);
         TextView artistTextView = (TextView)getActivity().findViewById(R.id.artist_name_textview);
         TextView albumNameTextView = (TextView)getActivity().findViewById(R.id.album_name_textview);
+        ImageView albumArtImageView = (ImageView)getActivity().findViewById(R.id.album_art_pane);
 
-        // Store current track info as an array
-        String[] currentTrackInfo;
-        try {
-            currentTrackInfo = new String[] {songNameTextView.getText().toString(), artistTextView.getText().toString(), albumNameTextView.getText().toString()};
-        } catch (NullPointerException e) {
-            currentTrackInfo = new String[] {"", "", ""};
+        // Show loading indicator
+        setLoadingIndicator(true);
+
+        // Get current track information and write it to textviews
+        String trackName = trackPrefs.getString(StreamService.PREFKEY_TRACK, "");
+        String artistName = trackPrefs.getString(StreamService.PREFKEY_ARTIST, "");
+        String albumName = trackPrefs.getString(StreamService.PREFKEY_ALBUM, "");
+        songNameTextView.setText(trackName);
+        artistTextView.setText(artistName);
+        albumNameTextView.setText(albumName);
+
+        // Get album art if it has been saved
+        Bitmap bitmap = BitmapFactory.decodeFile(getActivity().getFilesDir() + "/" + TrackUpdateHandler.ALBUM_ART_FILENAME);
+        if (bitmap != null) {
+            // If art was retrieved, load it into the album art pane.
+            albumArtImageView.setImageBitmap(bitmap);
+        } else {
+            // If nothing could be retrieved, load the placeholder album art image.
+            albumArtImageView.setImageResource(R.drawable.noalbumart);
+            Log.w(TAG, "Album art could not be decoded from SharedPreferences");
         }
-        new TrackUpdateHandler(this, getActivity(), container, currentTrackInfo, prefManager.getAlbumArtDownloadPreference()).execute();
+
+        // Hide the loading indicator
+        setLoadingIndicator(false);
+    }
+
+    /**
+     * Enables and disables the loading indicator for UI views.
+     * @param showLoadingIndicator True to enable, false to disable.
+     */
+    private void setLoadingIndicator(final boolean showLoadingIndicator) {
+        // Instantiate views
+        ProgressBar progressBar = (ProgressBar)getActivity().findViewById(R.id.album_art_progressbar);
+        ImageView albumArtPaneImageView = (ImageView)getActivity().findViewById(R.id.album_art_pane);
+        ImageView albumArtLoadingPaneImageView = (ImageView)getActivity().findViewById(R.id.album_art_loading_pane);
+        if (showLoadingIndicator) {
+            // Show loading indicators
+            progressBar.setVisibility(View.VISIBLE);
+            albumArtLoadingPaneImageView.setVisibility(View.VISIBLE);
+            albumArtPaneImageView.setVisibility(View.INVISIBLE);
+
+        } else {
+            // Hide progressBar and placeholder image and re-show album art pane.
+            progressBar.setVisibility(View.INVISIBLE);
+            albumArtLoadingPaneImageView.setVisibility(View.INVISIBLE);
+            albumArtPaneImageView.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -552,52 +499,6 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
         startActivity(intent);
     }
 
-    /**
-     * Retrieves the user's streaming preferences and changes the player's settings accordingly.
-     * @param prefManager PreferenceManager object to get/set changes.
-     */
-    private void applyStreamPreferences(PreferenceManager prefManager) {
-
-        // Retrieve stream preferences from PreferenceManager
-        int streamQuality = prefManager.getStreamQuality();
-        boolean isArtDownloaded = prefManager.getAlbumArtDownloadPreference();
-
-
-
-    }
-
-    /**
-     * Enables and disables the track update timer.
-     * @param startTimer true to start the timer, false to stop.
-     */
-    private void setUpdateTimer(boolean startTimer) {
-
-        // Build timer
-        updateTimer = new Timer();
-
-        // If the timer is to be enabled, assign the TimerTask and schedule updates.
-        if (startTimer) {
-            updateTimerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    Log.v(TAG, "Timer task has been called! Updating track info...");
-                    updateTrackInfo();
-                }
-            };
-            updateTimer.scheduleAtFixedRate(updateTimerTask, 0, TRACK_UPDATE_INTERVAL);
-            Log.v(TAG, "Timer started!");
-            Log.v(TAG, "Update schedule is set at " + TRACK_UPDATE_INTERVAL + " milliseconds.");
-        }
-
-        // If the timer is to be disabled, cancel and purge the timer object.
-        else {
-            if (updateTimerTask != null && updateTimer != null) {
-                updateTimerTask.cancel();
-                updateTimer.cancel();
-                Log.v(TAG, "Timer stopped and task has been purged.");
-            }
-        }
-    }
 
     /**
      * Called whenever a new track is displayed on the screen.
@@ -611,35 +512,4 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
         Log.v(TAG, "New track has been updated. Favorite status has been reset.");
     }
 
-    private void toggleAudioNotification(boolean isPlaying) {
-        // Build notification
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getActivity());
-        notificationBuilder.setSmallIcon(R.drawable.play_icon_white);
-        notificationBuilder.setContentTitle(getString(R.string.notification_title));
-        notificationBuilder.setContentText(getString(R.string.notification_subtitle));
-
-        // Create intent for activity in app
-        Intent resultIntent = new Intent(getActivity(), StreamContainer.class);
-
-        // Stack builder object contains an artificial back stack for the activity,
-        // ensuring the user will hit the home screen if they press back.
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getActivity());
-
-        // Add back stack for intent
-        stackBuilder.addParentStack(StreamContainer.class);
-
-        // Add intent that starts activity to the stop of the stack
-        stackBuilder.addNextIntent(resultIntent);
-
-        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-        notificationBuilder.setContentIntent(resultPendingIntent);
-
-        // Use NotificationManger to trigger the intent
-        NotificationManager notificationManager = (NotificationManager)getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-        final int NOTIFICATION_ID = 1;
-        //notificationManager.notify(NOTIFICATION_ID, notificationBuilder.notify());
-
-
-
-    }
 }

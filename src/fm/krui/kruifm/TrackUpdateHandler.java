@@ -1,21 +1,16 @@
 package fm.krui.kruifm;
 
-import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,16 +19,14 @@ public class TrackUpdateHandler extends AsyncTask<Void, Void, Integer> {
 
     private static final String TAG = TrackUpdateHandler.class.getName();
 
+    final public static String ALBUM_ART_FILENAME = "current_track_album_art";
+
     /* Constants */
     final private int NO_UPDATE = 0;
     final private int UPDATE_REQUESTED = 1;
 
     /* Class members */
     TrackUpdateListener listener;
-    Activity activity;
-    ProgressBar progressBar;
-    ImageView albumArtPane;
-    ImageView albumArtLoadingPane;
 
 	// Song info storage
 	String[] trackInfo;
@@ -41,14 +34,12 @@ public class TrackUpdateHandler extends AsyncTask<Void, Void, Integer> {
 	Bitmap albumArt;
     boolean updateAlbumArt;
     String[] currentTrackInfo;
+    Context context;
 
 
-	public TrackUpdateHandler(TrackUpdateListener l, Activity a, RelativeLayout container, String[] currentTrackInfo, boolean updateAlbumArt) {
+	public TrackUpdateHandler(Context context, TrackUpdateListener l, String[] currentTrackInfo, boolean updateAlbumArt) {
+        this.context = context;
 		this.listener = l;
-		this.activity = a;
-		this.progressBar = (ProgressBar)container.findViewById(R.id.album_art_progressbar);
-        this.albumArtPane = (ImageView)container.findViewById(R.id.album_art_pane);
-        this.albumArtLoadingPane = (ImageView)container.findViewById(R.id.album_art_loading_pane);
         this.currentTrackInfo = currentTrackInfo;
         this.updateAlbumArt = updateAlbumArt;
 	}
@@ -81,7 +72,6 @@ public class TrackUpdateHandler extends AsyncTask<Void, Void, Integer> {
             // If either the song, artist, or album name is different than the current song playing, we have downloaded a new track and we need to update the UI.
             // If album art update is requested, get the location of the album art and download it.
             if (updateAlbumArt) {
-                setLoadingIndicator(true);
                 artUrl = getAlbumArtURL(trackInfo[1], trackInfo[2]);
                 Log.v(TAG, "Returned album art = " + artUrl);
                 Log.v(TAG, "Grabbing album art from " + artUrl);
@@ -103,21 +93,17 @@ public class TrackUpdateHandler extends AsyncTask<Void, Void, Integer> {
 
         if (result == UPDATE_REQUESTED) {
 
-            // Apply new info to views.
-            Log.v(TAG, "Finished. Applying results to views.");
+            // Write the new track information to SharedPrefs
+            SharedPreferences prefs = context.getSharedPreferences(StreamService.PREFS_NAME, 0);
+            SharedPreferences.Editor prefEditor = prefs.edit();
+            prefEditor.putString(StreamService.PREFKEY_TRACK, trackInfo[0]);
+            prefEditor.putString(StreamService.PREFKEY_ARTIST, trackInfo[1]);
+            prefEditor.putString(StreamService.PREFKEY_ALBUM, trackInfo[2]);
+            prefEditor.commit();
 
             if (updateAlbumArt) {
-                ImageView artView = (ImageView) activity.findViewById(R.id.album_art_pane);
-                artView.setImageBitmap(albumArt);
+                writeAlbumArtToFile(albumArt);
             }
-
-            TextView songNameTextView = (TextView) activity.findViewById(R.id.song_name_textview);
-            TextView artistTextView = (TextView) activity.findViewById(R.id.artist_name_textview);
-            TextView albumNameTextView = (TextView) activity.findViewById(R.id.album_name_textview);
-            songNameTextView.setText(trackInfo[0]);
-            artistTextView.setText(trackInfo[1]);
-            albumNameTextView.setText(trackInfo[2]);
-            setLoadingIndicator(false);
 
             // Execute callback method of listener.
             listener.onTrackUpdate();
@@ -132,7 +118,7 @@ public class TrackUpdateHandler extends AsyncTask<Void, Void, Integer> {
 	 * @return Album Art URL string. 
 	 */
 	protected String getAlbumArtURL(String artist, String albumName) {
-		String key  = activity.getString(R.string.lastfm_api_key);
+		String key  = context.getString(R.string.lastfm_api_key);
 		Log.v(TAG, "Web encoded artist: " + Utils.webEncodeString(artist));
 		Log.v(TAG, "Web encoded album: " + Utils.webEncodeString(albumName));
 		String apiQuery = "http://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=" + key + "&artist=" + Utils.webEncodeString(artist) + "&album=" + Utils.webEncodeString(albumName) + "&autocorrect=1&format=json";
@@ -206,42 +192,28 @@ public class TrackUpdateHandler extends AsyncTask<Void, Void, Integer> {
 		}
 
 		// If the download fails or image doesn't exist, display the default KRUI background image.
-		bitmap = BitmapFactory.decodeResource(activity.getResources(), R.drawable.krui_background_logo);
+		bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.krui_background_logo);
 		return bitmap;
 	}
 
     /**
-     * Enables and disables the loading indicator on the UI thread.
-     * @param showLoadingIndicator True to enable, false to disable.
+     * Writes downloaded album art to file storage
+     * @param bitmap Album Art image as Bitmap
      */
-    private void setLoadingIndicator(final boolean showLoadingIndicator) {
-
-        Thread t = new Thread(){
-            public void run(){
-                activity.runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        if (showLoadingIndicator) {
-                            // Show loading indicators
-                            progressBar.setVisibility(View.VISIBLE);
-                            albumArtLoadingPane.setVisibility(View.VISIBLE);
-                            albumArtPane.setVisibility(View.INVISIBLE);
-
-                        } else {
-                            // Hide progressBar and placeholder image and re-show album art pane.
-                            progressBar.setVisibility(View.INVISIBLE);
-                            albumArtLoadingPane.setVisibility(View.INVISIBLE);
-                            albumArtPane.setVisibility(View.VISIBLE);
-
-                        }
-                    }
-                });
-            }
-        };
-        t.start();
+    private void writeAlbumArtToFile(Bitmap bitmap) {
+        File file = new File(context.getFilesDir(), ALBUM_ART_FILENAME);
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
+            Log.v(TAG, "Album art successfully written to disk!");
+            out.close();
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, "WARNING: Album art could not be saved to disk. FileNotFoundException.");
+            e.printStackTrace();
+        } catch (IOException e) {
+            Log.e(TAG, "WARNING: Album art could not be saved to disk. IOException.");
+            e.printStackTrace();
+        }
     }
-
-
 
 }
