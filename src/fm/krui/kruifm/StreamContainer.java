@@ -168,12 +168,14 @@ public class StreamContainer extends FragmentActivity {
 
     // DJ Info Fragment
     public void showDJInfo(View view) {
-        drawer.cancel();
-        Fragment fragment = new DJInfoFragment();
-        getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(DJ_TAB)).commit();
-        TAB_STATE = DJ_TAB;
-        applyActionBarParameters(TAB_STATE);
-        currentFragment = fragment;
+        Intent intent = new Intent(this, DJInfoActivity.class);
+        startActivity(intent);
+        //drawer.cancel();
+        //Fragment fragment = new DJInfoFragment();
+        //getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(DJ_TAB)).commit();
+        //TAB_STATE = DJ_TAB;
+        //applyActionBarParameters(TAB_STATE);
+        //currentFragment = fragment;
     }
 
     // Favorite Tracks Fragment

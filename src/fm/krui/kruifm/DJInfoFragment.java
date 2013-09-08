@@ -1,6 +1,5 @@
 package fm.krui.kruifm;
 
-import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,12 +10,16 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class DJInfoFragment extends Fragment implements DJInfoListener, ImageListener {
+public class DJInfoFragment extends Fragment implements ImageListener {
 
     private static String TAG = DJInfoFragment.class.getName();
     protected View rootView;
     protected String DEFAULT_DJ_IMAGE = "http://staff.krui.fm/assets/images/default.png";
-    protected ProgressDialog pd;
+    protected DJ dj;
+
+    public DJInfoFragment(DJ dj) {
+        this.dj = dj;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -33,23 +36,6 @@ public class DJInfoFragment extends Fragment implements DJInfoListener, ImageLis
         ViewGroup rootContainer = (RelativeLayout)getActivity().findViewById(R.id.djinfo_fragment_container_relativelayout);
         NetworkListener networkListener = new NetworkListener(getActivity(), rootContainer);
         NetworkManager networkManager = new NetworkManager(getActivity(), networkListener);
-
-        // Check for network access
-        boolean isConnected = networkManager.checkForNetworkConnection();
-
-        if (!isConnected) {
-            // Strip layout container and display alert dialog.
-            rootContainer.removeAllViews();
-            networkManager.showConnectionAlert();
-        } else {
-            // Get DJ information from staff.krui.fm API
-            DJInfoFetcher fetcher = new DJInfoFetcher(getActivity(), this);
-            fetcher.execute();
-        }
-    }
-
-    @Override
-    public void onFinish(DJ dj) {
 
         // Instantiate layout objects to be updated.
         TextView djNameTextView = (TextView) rootView.findViewById(R.id.dj_info_name_textview);
@@ -73,9 +59,21 @@ public class DJInfoFragment extends Fragment implements DJInfoListener, ImageLis
 
     @Override
     public void onImageDownloaded(Bitmap bitmap) {
-
         // If this method is called, a valid image has been returned. Update the imageView.
         ImageView djImageView = (ImageView)rootView.findViewById(R.id.dj_image_imageView);
         djImageView.setImageBitmap(bitmap);
     }
 }
+
+// Check for network access
+        /*boolean isConnected = networkManager.checkForNetworkConnection();
+
+        if (!isConnected) {
+            // Strip layout container and display alert dialog.
+            rootContainer.removeAllViews();
+            networkManager.showConnectionAlert();
+        } else {
+            // Get DJ information from staff.krui.fm API
+            DJInfoFetcher fetcher = new DJInfoFetcher(getActivity(), this);
+            fetcher.execute();
+        }*/

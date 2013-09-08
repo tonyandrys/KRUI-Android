@@ -23,5 +23,7 @@
     </color>
     <color name="drawer_foreground">#303030
     </color>
+    <color name="tweet_background_color">#303030
+    </color>
 
 </resources>

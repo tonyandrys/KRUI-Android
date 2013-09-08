@@ -84,6 +84,7 @@ public class Utils {
 
         return weekday;
     }
+
     /**
      * Converts a non URL safe string into a URL safe string.
      * @param s String to be encoded
