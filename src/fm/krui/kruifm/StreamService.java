@@ -33,7 +33,7 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
 
     final private String TAG = StreamService.class.getName();
 
-    final int NOTIFICATION_ID = 1492;
+    final int NOTIFICATION_ID = 1492; // in 1492 Columbus sailed the ocean blue.
     final private int MAX_VOLUME = 100;
     final private int TRACK_UPDATE_INTERVAL = 30000; // Time to wait before checking for track updates in milliseconds.
 

@@ -6,94 +6,96 @@
     tools:context=".StreamActivity" android:id="@+id/stream_fragment_container_relativelayout">
 
     <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/stream_album_art_container"
-            android:layout_alignParentBottom="false" android:layout_above="@+id/stream_functions_container_framelayout"
-            android:layout_centerHorizontal="true" android:layout_marginBottom="25dp" android:layout_marginTop="5dp">
-        <ImageView
-                android:layout_width="300dp"
-                android:layout_height="300dp"
-                android:id="@+id/album_art_loading_pane"
-                android:background="#C4C4C4" android:visibility="invisible"/>
-        <ProgressBar
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" android:id="@+id/stream_now_playing_container_relativelayout"
+            android:layout_above="@+id/stream_progress_container_relativelayout"
+            >
+        <RelativeLayout
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/stream_album_art_container"
+                android:layout_alignParentBottom="false" android:layout_above="@+id/stream_functions_container_framelayout"
+                android:layout_centerHorizontal="true" android:layout_marginBottom="25dp" android:layout_marginTop="5dp"
+                android:visibility="invisible">
+            <ImageView
+                    android:layout_width="300dp"
+                    android:layout_height="300dp"
+                    android:id="@+id/album_art_loading_pane"
+                    android:background="#C4C4C4" android:visibility="invisible"/>
+            <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/album_art_progressbar" android:layout_centerInParent="true"
+                    android:visibility="invisible"/>
+            <ImageView
+                android:id="@+id/album_art_pane"
+                android:layout_height="300dp"
+                android:layout_width="300dp"
+                android:src="@drawable/krui_background_logo"
+                android:contentDescription="@string/krui_logo_background_desc"
+                android:layout_centerHorizontal="true"
+                android:visibility="visible"/>
+        </RelativeLayout>
+        <TextView
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/album_art_progressbar" android:layout_centerInParent="true"
-                android:visibility="invisible"/>
-        <ImageView
-            android:id="@+id/album_art_pane"
-            android:layout_height="300dp"
-            android:layout_width="300dp"
-            android:src="@drawable/krui_background_logo"
-            android:contentDescription="@string/krui_logo_background_desc"
-            android:layout_centerHorizontal="true"
-            android:visibility="visible"/>
-    </RelativeLayout>
-    <TextView
-        android:id="@+id/song_name_textview"
-        android:layout_height="wrap_content"
-        android:layout_width="fill_parent"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true"
-        android:textSize="20sp"
-        android:scrollHorizontally="true"
-        android:fadingEdge="horizontal"
-        android:singleLine="true" android:ellipsize="middle"
-        android:marqueeRepeatLimit="marquee_forever" android:gravity="center_horizontal"
-        android:textAlignment="gravity" android:layout_marginTop="10dp"/>
-    
-    <TextView
-        android:id="@+id/album_name_textview"
-        android:layout_height="wrap_content"
-        android:layout_width="fill_parent"
-        android:textSize="18sp"
-        android:layout_below="@+id/artist_name_textview" android:layout_centerHorizontal="true"
-        android:gravity="center_horizontal" android:textAlignment="gravity" android:layout_marginTop="2.5dp"
-            />
-
-    <!-- Unfinished solution! This button is kludgy and is only temporary. -->
-
-    <TextView
-            android:layout_width="fill_parent"
+                android:id="@+id/artist_name_textview"
+                android:textSize="18sp"
+                android:layout_below="@+id/song_name_textview" android:layout_centerHorizontal="true"
+                android:textAlignment="gravity" android:gravity="center_horizontal" android:layout_marginTop="2.5dp"/>
+        <TextView
+            android:id="@+id/album_name_textview"
             android:layout_height="wrap_content"
-            android:id="@+id/artist_name_textview"
+            android:layout_width="fill_parent"
             android:textSize="18sp"
-            android:layout_below="@+id/song_name_textview" android:layout_centerHorizontal="true"
-            android:textAlignment="gravity" android:gravity="center_horizontal" android:layout_marginTop="2.5dp"/>
-    <ImageView
-            android:layout_width="wrap_content"
+            android:layout_below="@+id/artist_name_textview" android:layout_centerHorizontal="true"
+            android:gravity="center_horizontal" android:textAlignment="gravity" android:layout_marginTop="2.5dp"
+                />
+        <TextView
+            android:id="@+id/song_name_textview"
             android:layout_height="wrap_content"
-            android:id="@+id/imageView" android:layout_toLeftOf="@+id/play_audio_button"
-            android:src="@drawable/star_unfilled" android:layout_alignBottom="@+id/play_audio_button"
-            android:visibility="invisible"/>
-    <ImageView
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/imageView1"
-            android:layout_alignParentBottom="true" android:layout_centerHorizontal="true"
-            android:src="@drawable/stream_control_gradient"/>
-    <FrameLayout
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true"
+            android:textSize="20sp"
+            android:scrollHorizontally="true"
+            android:fadingEdge="horizontal"
+            android:singleLine="true" android:ellipsize="middle"
+            android:marqueeRepeatLimit="marquee_forever" android:gravity="center_horizontal"
+            android:textAlignment="gravity" android:layout_marginTop="10dp"/>
+        <RelativeLayout
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:background="@color/light_gray" android:id="@+id/no_audio_playing_container_relativelayout"
+                android:gravity="center|center_horizontal">
+            <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/no_audio_playing_top"
+                    android:id="@+id/no_audio_text_textview" android:gravity="center" android:textSize="25sp"/>
+            <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/no_audio_subtext_textview" android:layout_below="@+id/no_audio_text_textview"
+                    android:text="@string/no_audio_playing_sub" android:gravity="center" android:layout_marginTop="50dp"/>
+        </RelativeLayout>
+    </RelativeLayout>
+
+
+    <RelativeLayout
             android:layout_width="fill_parent"
-            android:layout_height="150dp" android:id="@+id/stream_functions_container_framelayout"
-            android:layout_alignParentBottom="true">
+            android:layout_height="75dp" android:id="@+id/stream_functions_container_relativelayout"
+            android:layout_alignParentBottom="true" android:background="@drawable/stream_control_gradient"
+            >
         <TableLayout
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent" android:id="@+id/player_controls_tablelayout"
+                android:layout_height="wrap_content" android:id="@+id/player_controls_tablelayout"
                 android:layout_alignParentBottom="true" android:layout_centerHorizontal="true" android:stretchColumns="*"
-                android:background="@drawable/stream_control_gradient" android:visibility="visible">
+                android:visibility="visible">
             <TableRow
                     android:layout_width="fill_parent"
-                    android:layout_height="fill_parent" android:layout_marginBottom="10dp" android:layout_marginTop="20dp">
-                <SeekBar
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/volume_seekbar" android:layout_span="3" android:progress="100" android:max="100"
-                        android:layout_marginRight="10dp"/>
-            </TableRow>
-            <TableRow
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent" android:layout_marginBottom="20dp"
-                    android:layout_marginTop="10dp">
+                    android:layout_height="wrap_content" android:layout_marginBottom="20dp"
+                    android:layout_marginTop="10dp" android:id="@+id/user_controls_tablerow">
                 <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="50dp"
@@ -111,13 +113,13 @@
         </TableLayout>
         <TableLayout
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent" android:id="@+id/player_settings_tablelayout"
+                android:layout_height="wrap_content" android:id="@+id/player_settings_tablelayout"
                 android:layout_alignTop="@+id/player_controls_tablelayout"
                 android:background="@drawable/stream_control_gradient" android:gravity="center_vertical|center_horizontal"
                 android:visibility="gone" android:stretchColumns="*">
             <TableRow
                     android:layout_width="fill_parent"
-                    android:layout_height="fill_parent" android:layout_gravity="center_horizontal"
+                    android:layout_height="wrap_content" android:layout_gravity="center_horizontal"
                     android:gravity="center" android:layout_marginBottom="10dp" android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp">
                 <TextView
@@ -134,7 +136,7 @@
             </TableRow>
             <TableRow
                     android:layout_width="fill_parent"
-                    android:layout_height="fill_parent" android:layout_gravity="center_horizontal" android:gravity="center"
+                    android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:gravity="center"
                     android:layout_marginBottom="10dp" android:layout_marginLeft="10dp" android:layout_marginRight="10dp">
                 <TextView
                         android:layout_width="wrap_content"
@@ -151,7 +153,7 @@
             </TableRow>
             <TableRow
                     android:layout_width="fill_parent"
-                    android:layout_height="fill_parent" android:layout_marginLeft="10dp"
+                    android:layout_height="wrap_content" android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp">
                 <Button
                         android:layout_width="wrap_content"
@@ -161,6 +163,41 @@
                         android:layout_span="2"/>
             </TableRow>
         </TableLayout>
-    </FrameLayout>
+    </RelativeLayout>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:layout_above="@+id/stream_progress_container_relativelayout"
+            android:visibility="visible" android:id="@+id/stream_status_container_linearlayout"
+            android:background="#474747">
+        <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/stream_status_buffering"
+                android:id="@+id/stream_status_label_textview" android:textColor="@color/white" android:gravity="center"
+                android:textStyle="italic" android:padding="2.5dp"/>
+    </LinearLayout>
+    <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:id="@+id/stream_progress_container_relativelayout"
+            android:layout_above="@+id/stream_functions_container_relativelayout" android:background="#474747">
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" android:id="@+id/stream_progress_container_linearlayout"
+                android:gravity="center">
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="12:00"
+                    android:id="@+id/stream_progress_int_textview" android:textColor="@color/white" android:padding="5dp"
+                    android:textSize="18sp"/>
+            <ProgressBar
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/stream_progress_progressbar" style="@android:style/Widget.ProgressBar.Horizontal"
+                    android:layout_span="3" android:padding="5dp"/>
+        </LinearLayout>
+    </RelativeLayout>
 
 </RelativeLayout>

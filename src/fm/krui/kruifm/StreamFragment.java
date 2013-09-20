@@ -123,7 +123,8 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
         });
 
         // Build volume seek bar listener
-        final SeekBar volumeSeekBar = (SeekBar)getActivity().findViewById(R.id.volume_seekbar);
+        // ** DISABLED FOR NOW -- This might be completely thrown out. **
+        /*final SeekBar volumeSeekBar = (SeekBar)getActivity().findViewById(R.id.volume_seekbar);
         volumeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
             // When seek bar progress is changed, change the audio of the media player appropriately.
@@ -139,7 +140,7 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
-        });
+        }); */
 
         // Build settings button listener and apply it to settings icon and submit button
         View.OnClickListener flipListener = new View.OnClickListener() {
