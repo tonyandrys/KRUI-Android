@@ -50,6 +50,10 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
     public static final String BROADCAST_COMMAND_PAUSE = "pauseStream";
     public static final String BROADCAST_COMMAND_STOP = "stopStream";
     public static final String BROADCAST_COMMAND_UPDATE = "updateStream";
+    public static final String BROADCAST_COMMAND_STATUS_MESSAGE = "statusMessage";
+    public static final String STREAM_STATUS_KEY = "newStatus";
+    public static final String STREAM_STATUS_DISPLAY_LENGTH = "isIndefinite";
+
 
     // Intent command constants
     public static final String INTENT_STREAM_URL = "streamUrl";
@@ -222,6 +226,26 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
         Log.v(TAG, "Sent local broadcast: " + intent.getStringExtra(BROADCAST_KEY));
     }
 
+    /**
+     * Updates and displays the stream status bar.
+     * @param streamStatus String to be displayed in the status bar
+     * @param displayUntilCancelled if this is true, the status message will be displayed until it is explicitly
+     *                              cancelled by a BROADCAST_COMMAND_HIDE_STATUS message.
+     */
+    private void updateStreamStatus(String status, boolean displayUntilCancelled) {
+
+        // Send a special broadcast message, which includes the status to display as well as its lifespan.
+        // TODO: If this method or broadcastMessage() get much bigger, it would be more correct to make a separate class dedicated to broadcasts.
+
+        Intent intent = new Intent(BROADCAST_MESSAGE);
+        intent.putExtra(BROADCAST_KEY, BROADCAST_COMMAND_STATUS_MESSAGE);
+        intent.putExtra(STREAM_STATUS_KEY, status);
+        intent.putExtra(STREAM_STATUS_DISPLAY_LENGTH, displayUntilCancelled);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        Log.v(TAG, "Sent new status message: " + intent.getStringExtra(STREAM_STATUS_KEY));
+        Log.v(TAG, "Indefinite status: " + intent.getBooleanExtra(STREAM_STATUS_DISPLAY_LENGTH, false));
+    }
+
     public IBinder onBind(Intent intent) {
         return null;
     }
@@ -261,6 +285,7 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
 
                 // If there is an error in playback, stop and inform the user.
                 mp = buildAudioPlayer();
+                // FIXME: This should be a status bar message! Update this when that is fully implemented
                 Toast.makeText(getApplicationContext(), "Failed to load the stream. Please check your internet connection and try again.", Toast.LENGTH_LONG).show();
                 Log.e(TAG, "Error in playback. onError was called.");
                 return true;
@@ -305,8 +330,10 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
                     // Clear cached track information and start audio service.
                     setCurrentTrackInfo("", "", "");
                     updateNotification("", "", true);
-
                     setUpdateTimer(true);
+
+                    // Since we're not buffering anymore, hide the status bar from the user
+
                     Log.i(TAG, "Stream playback started.");
 
                 }
@@ -375,6 +402,7 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
             errorCode = "MEDIA TIMED OUT";
         }
         Log.e(TAG, "*** Error Code: " + errorCode);
+        broadcastMessage(BROADCAST_COMMAND_STATUS_MESSAGE + errorCode);
         isPrepared = false;
         return false;
     }

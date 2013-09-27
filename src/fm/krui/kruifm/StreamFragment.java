@@ -11,6 +11,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.*;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.*;
 
 import java.util.Timer;
@@ -172,6 +174,23 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
                 }
             }
         });
+
+        // Build test buttons ** REMOVE ME **
+        final Button showButton = (Button)getActivity().findViewById(R.id.show_status_button_TEST);
+        showButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showStreamStatusBar(true, "Hello");
+            }
+        });
+        final Button hideButton = (Button)getActivity().findViewById(R.id.hide_status_button_TEST);
+        hideButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showStreamStatusBar(false, null);
+            }
+        });
+
 
         // Build settings switches
         final Switch streamQualitySwitch = (Switch)getActivity().findViewById(R.id.stream_quality_switch);
@@ -336,6 +355,13 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
                 // Update UI with new information
                 updateTrackInfo();
             }
+
+            else if (broadcastCommand.equals(StreamService.BROADCAST_COMMAND_STATUS_MESSAGE)) {
+                // Extract message and determine if this message should stay until cancelled.
+                String streamStatus = intent.getStringExtra(StreamService.STREAM_STATUS_KEY);
+                boolean indefiniteMessage = intent.getBooleanExtra(StreamService.STREAM_STATUS_DISPLAY_LENGTH, false);
+                showStreamStatusBar(false, null);
+            }
         } else {
             Log.e(TAG, "ERROR: Broadcast received but could not extract command.");
         }
@@ -491,6 +517,7 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
 
     /**
      * Pushes KRUI studio phone number to user's phone. Only dials, does not make calls (so the user can back out if needed).
+     * FIXME: Move this to its own intent class combined with all other intents this application will make
      */
     protected void dialStudio() {
         String studioNumber = "319-335-8970";
@@ -511,6 +538,36 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
         trackIsFavorite = false;
         favoriteButton.setImageResource(R.drawable.star_unfilled_white);
         Log.v(TAG, "New track has been updated. Favorite status has been reset.");
+    }
+
+    /**
+     * Moves the stream status bar into view to show messages regarding stream status. Use indefinite time constraints
+     * @param message String to display in the status bar.
+     * @param isIndefinite true if the message should be displayed until explicitly cancelled by a broadcast message.
+     */
+    // FIXME: Rewrite to support indefinite messages and set a default display time constant if not indefinite
+    public void showStreamStatusBar(String message, boolean isIndefinite) {
+        LinearLayout statusContainer = (LinearLayout)getActivity().findViewById(R.id.stream_status_container_linearlayout);
+        if (!showStatus) {
+            // Hide the status bar and do nothing else.
+            final Animation animOut = AnimationUtils.loadAnimation(getActivity(), R.anim.translate_down);
+            statusContainer.startAnimation(animOut);
+        } else {
+            // Apply label text, then bring the status bar into view
+            TextView statusLabel = (TextView)getActivity().findViewById(R.id.stream_status_label_textview);
+            statusLabel.setText(message);
+            final Animation animIn = AnimationUtils.loadAnimation(getActivity(), R.anim.translate_up);
+            statusContainer.startAnimation(animIn);
+        }
+    }
+
+    /**
+     * Manually hides the stream status bar from view.
+     */
+    public void hideStatusBar() {
+        LinearLayout statusContainer = (LinearLayout)getActivity().findViewById(R.id.stream_status_container_linearlayout);
+        final Animation animOut = AnimationUtils.loadAnimation(getActivity(), R.anim.translate_down);
+        statusContainer.startAnimation(animOut);
     }
 
 }

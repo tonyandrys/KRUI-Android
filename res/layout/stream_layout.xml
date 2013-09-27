@@ -79,6 +79,17 @@
                     android:id="@+id/no_audio_subtext_textview" android:layout_below="@+id/no_audio_text_textview"
                     android:text="@string/no_audio_playing_sub" android:gravity="center" android:layout_marginTop="50dp"/>
         </RelativeLayout>
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Show Status"
+                android:id="@+id/show_status_button_TEST"
+                />
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hide Status"
+                android:id="@+id/hide_status_button_TEST" android:layout_alignParentRight="true"/>
     </RelativeLayout>
 
 
@@ -98,16 +109,16 @@
                     android:layout_marginTop="10dp" android:id="@+id/user_controls_tablerow">
                 <ImageView
                         android:layout_width="wrap_content"
-                        android:layout_height="50dp"
+                        android:layout_height="48dp"
                         android:id="@+id/stream_favorite_imageview" android:src="@drawable/star_unfilled_white"/>
                 <ImageView
                         android:layout_width="wrap_content"
-                        android:layout_height="50dp"
+                        android:layout_height="48dp"
                         android:id="@+id/play_audio_imageview" android:layout_column="1" android:src="@drawable/play_icon_white"
                         />
                 <ImageView
                         android:layout_width="wrap_content"
-                        android:layout_height="50dp"
+                        android:layout_height="48dp"
                         android:id="@+id/stream_settings_imageview" android:layout_column="2" android:src="@drawable/settings_icon"/>
             </TableRow>
         </TableLayout>
@@ -167,15 +178,15 @@
     <LinearLayout
             android:orientation="horizontal"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content" android:layout_above="@+id/stream_progress_container_relativelayout"
+            android:layout_height="wrap_content"
             android:visibility="visible" android:id="@+id/stream_status_container_linearlayout"
-            android:background="#474747">
+            android:background="#424242" android:layout_alignTop="@+id/stream_progress_container_relativelayout">
         <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/stream_status_buffering"
                 android:id="@+id/stream_status_label_textview" android:textColor="@color/white" android:gravity="center"
-                android:textStyle="italic" android:padding="2.5dp"/>
+                android:textStyle="italic" android:padding="2.5dp" android:textSize="20sp"/>
     </LinearLayout>
     <RelativeLayout
             android:layout_width="fill_parent"
