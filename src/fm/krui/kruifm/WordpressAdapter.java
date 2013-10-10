@@ -2,6 +2,7 @@ package fm.krui.kruifm;
 
 import android.app.Activity;
 import android.content.Context;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,8 +83,8 @@ public class WordpressAdapter extends BaseAdapter {
         }
 
         // Set the contents of the article row.
-        articleHolder.articleTitleTextView.setText(article.getTitle());
-        articleHolder.articleExcerptTextView.setText(article.getExcerpt());
+        articleHolder.articleTitleTextView.setText(Html.fromHtml(article.getTitle()));
+        articleHolder.articleExcerptTextView.setText(Html.fromHtml(article.getExcerpt()));
 
         return view;
     }

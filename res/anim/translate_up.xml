@@ -4,6 +4,6 @@
            android:fromXDelta="0%"
            android:fromYDelta="0%"
            android:toXDelta="0%p"
-           android:toYDelta="-5%p"
+           android:toYDelta="-6%p"
            android:duration="500"
            android:fillAfter="true" />

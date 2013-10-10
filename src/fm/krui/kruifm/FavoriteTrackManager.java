@@ -10,7 +10,6 @@ package fm.krui.kruifm;
 
 import android.app.Activity;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -119,7 +118,6 @@ public class FavoriteTrackManager {
             trackMap.put(KEY_TRACK, trackName);
             // Add this track to the favorite hashMap.
             favoriteList.add(trackMap);
-            Toast.makeText(activity, "Added " + trackName + " by " + artistName + "to favorites.", Toast.LENGTH_SHORT).show();
 
             Log.v(TAG, "----------");
             Log.v(TAG, "Favorite list is now:");
@@ -140,7 +138,7 @@ public class FavoriteTrackManager {
      */
     public void removeTrackFromFavorites() {
         HashMap<String, String> lastTrack = favoriteList.get(favoriteList.size()-1);
-        Toast.makeText(activity, "Removed " + lastTrack.get(KEY_TRACK) + " by " + lastTrack.get(KEY_ARTIST) + "from favorites.", Toast.LENGTH_SHORT).show();
+
         // Ensure there is something in the list to remove before removing a favorite track.
         if (favoriteList.size()>0) {
             favoriteList.remove(favoriteList.size()-1);

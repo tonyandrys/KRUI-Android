@@ -13,8 +13,7 @@ Written to provide a quick and functional interface to the station's web site ht
 - [x] Artist/Album/Song information retrieved from Last.FM/PHPDJ API.
 - [x] Schedule view of the week's programming on 89.7 and The Lab.
 - [x] Extended Playlist view - Displays the last 100 tracks played by KRUI's DJs.
-- [x] Bios of the current DJ are viewable.
-
+- [x] Bios and Twitter feeds of the current DJ are viewable.
 
 ### Requirements
 - Android device, OS 4.0+

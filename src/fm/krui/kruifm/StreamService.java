@@ -51,9 +51,9 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
     public static final String BROADCAST_COMMAND_STOP = "stopStream";
     public static final String BROADCAST_COMMAND_UPDATE = "updateStream";
     public static final String BROADCAST_COMMAND_STATUS_MESSAGE = "statusMessage";
+    public static final String BROADCAST_COMMAND_STATUS_HIDE = "hideStatus";
     public static final String STREAM_STATUS_KEY = "newStatus";
     public static final String STREAM_STATUS_DISPLAY_LENGTH = "isIndefinite";
-
 
     // Intent command constants
     public static final String INTENT_STREAM_URL = "streamUrl";
@@ -227,14 +227,15 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
     }
 
     /**
-     * Updates and displays the stream status bar.
-     * @param streamStatus String to be displayed in the status bar
+     * Updates and displays the stream status bar. Updates require a broadcast message of a
+     * different format, which includes the status to display as well as its lifespan.
+     * @param status String to be displayed in the status bar
      * @param displayUntilCancelled if this is true, the status message will be displayed until it is explicitly
      *                              cancelled by a BROADCAST_COMMAND_HIDE_STATUS message.
      */
     private void updateStreamStatus(String status, boolean displayUntilCancelled) {
 
-        // Send a special broadcast message, which includes the status to display as well as its lifespan.
+        // Send a
         // TODO: If this method or broadcastMessage() get much bigger, it would be more correct to make a separate class dedicated to broadcasts.
 
         Intent intent = new Intent(BROADCAST_MESSAGE);
@@ -333,7 +334,7 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
                     setUpdateTimer(true);
 
                     // Since we're not buffering anymore, hide the status bar from the user
-
+                    broadcastMessage(BROADCAST_COMMAND_STATUS_HIDE);
                     Log.i(TAG, "Stream playback started.");
 
                 }
@@ -341,6 +342,7 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
 
             // Prepares stream without blocking UI Thread
             mp.prepareAsync();
+            updateStreamStatus(getString(R.string.stream_status_buffering), true);
 
         } catch (IllegalStateException e) {
             Log.e(TAG, "Caught IllegalStateException when preparing: ");
@@ -386,7 +388,7 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
         String errorType = "";
         String errorCode = "";
         if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN) {
-            errorType = "UNKNOWN";
+            errorType = "UNKNOWN ERROR";
         } else if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
             errorType = "SERVER DIED";
         }
@@ -402,7 +404,8 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
             errorCode = "MEDIA TIMED OUT";
         }
         Log.e(TAG, "*** Error Code: " + errorCode);
-        broadcastMessage(BROADCAST_COMMAND_STATUS_MESSAGE + errorCode);
+        // FIXME: UGLY. Clean this up.
+        updateStreamStatus("Error Type: " + errorType + " / Error Code: " + errorCode, false);
         isPrepared = false;
         return false;
     }

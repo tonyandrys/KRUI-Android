@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.*;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -45,7 +44,6 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
     // FIXME: This member isn't efficient
     SharedPreferences trackPrefs;
 
-
     // Service broadcast receiver
     private BroadcastReceiver broadcastReceiver;
 
@@ -63,7 +61,8 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.call_studio_button:
-                dialStudio();
+                IntentManager im = new IntentManager(getActivity());
+                im.dialStudio();
                 break;
 
         }
@@ -166,7 +165,7 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
                 if (trackIsFavorite) {
                     favoriteButton.setImageResource(R.drawable.star_unfilled_white);
                     trackIsFavorite = false;
-                    favTrackManager.removeTrackFromFavorites();
+                    removeTrackFromFavorites();
                 } else {
                     favoriteButton.setImageResource(R.drawable.star_filled_white);
                     trackIsFavorite = true;
@@ -174,23 +173,6 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
                 }
             }
         });
-
-        // Build test buttons ** REMOVE ME **
-        final Button showButton = (Button)getActivity().findViewById(R.id.show_status_button_TEST);
-        showButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showStreamStatusBar(true, "Hello");
-            }
-        });
-        final Button hideButton = (Button)getActivity().findViewById(R.id.hide_status_button_TEST);
-        hideButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showStreamStatusBar(false, null);
-            }
-        });
-
 
         // Build settings switches
         final Switch streamQualitySwitch = (Switch)getActivity().findViewById(R.id.stream_quality_switch);
@@ -238,7 +220,7 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
      * Performs animation between control view and settings view.
      */
     private void flipCard() {
-        View rootLayout = (View)getActivity().findViewById(R.id.stream_functions_container_framelayout);
+        View rootLayout = (View)getActivity().findViewById(R.id.stream_functions_container_relativelayout);
         View cardFace = (View)getActivity().findViewById(R.id.player_controls_tablelayout);
         View cardBack = (View)getActivity().findViewById(R.id.player_settings_tablelayout);
 
@@ -277,10 +259,14 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
 
         // Add this track to favorites
         favTrackManager.addTrackToFavorites(track);
+        String message = getString(R.string.add_favorite);
+        showStreamStatusBar(message, false);
     }
 
     private void removeTrackFromFavorites() {
         favTrackManager.removeTrackFromFavorites();
+        String message = getString(R.string.remove_favorite);
+        showStreamStatusBar(message, false);
     }
 
     @Override
@@ -356,11 +342,27 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
                 updateTrackInfo();
             }
 
+            // If a status message is received, show the status bar and display the message.
             else if (broadcastCommand.equals(StreamService.BROADCAST_COMMAND_STATUS_MESSAGE)) {
+
                 // Extract message and determine if this message should stay until cancelled.
                 String streamStatus = intent.getStringExtra(StreamService.STREAM_STATUS_KEY);
                 boolean indefiniteMessage = intent.getBooleanExtra(StreamService.STREAM_STATUS_DISPLAY_LENGTH, false);
-                showStreamStatusBar(false, null);
+
+                // Write this message to the status bar
+                if (indefiniteMessage) {
+                    Log.v(TAG, "Status received: " + streamStatus);
+                    showStreamStatusBar(streamStatus, true);
+                } else {
+                    Log.v(TAG, "Indefinite status received: " + streamStatus);
+                    showStreamStatusBar(streamStatus, false);
+                }
+            }
+
+            // If a status hide message is received, an indefinite status is being displayed. Manually hide the status bar.
+            else if (broadcastCommand.equals(StreamService.BROADCAST_COMMAND_STATUS_HIDE)) {
+                hideStatusBar();
+                Log.v(TAG, "Broadcast received to hide status bar. Manually hiding.");
             }
         } else {
             Log.e(TAG, "ERROR: Broadcast received but could not extract command.");
@@ -392,27 +394,28 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
         String labLowPort = "8105";
         String labHighPort = "8103";
 
-        // Based on station passed,
+        // Based on station passed, change the URL and display a notice to the user.
         prefManager = new PreferenceManager(getActivity());
         switch (station) {
             case MAIN_STUDIO:
                 if (prefManager.getStreamQuality() == prefManager.HIGH_QUALITY) {
                     URL += mainHighPort;
-                    Toast.makeText(getActivity(), "Main Studio - High Quality stream selected", Toast.LENGTH_SHORT).show();
                 } else {
                     URL += mainLowPort;
-                    Toast.makeText(getActivity(), "Main Studio, Low Quality stream selected", Toast.LENGTH_SHORT).show();
                 }
+                String mainMessage = getString(R.string.changing_897);
+                showStreamStatusBar(mainMessage, false);
                 break;
 
             case THE_LAB:
                 if (prefManager.getStreamQuality() == prefManager.HIGH_QUALITY) {
                     URL += labHighPort;
-                    Toast.makeText(getActivity(), "The Lab, High Quality stream selected", Toast.LENGTH_SHORT).show();
                 } else {
                     URL += labLowPort;
-                    Toast.makeText(getActivity(), "The Lab, Low Quality stream selected", Toast.LENGTH_SHORT).show();
                 }
+                String labMessage = getString(R.string.changing_lab);
+                showStreamStatusBar(labMessage, false);
+                break;
         }
         return URL;
     }
@@ -440,6 +443,12 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
 
         // Change image of button to pause icon.
         playButton.setImageResource(R.drawable.pause_icon_white);
+
+        // Hide the "no audio playing" overlay
+        RelativeLayout noAudioContainer = (RelativeLayout)getActivity().findViewById(R.id.no_audio_playing_container_relativelayout);
+        RelativeLayout albumArtContainer = (RelativeLayout)getActivity().findViewById(R.id.stream_album_art_container);
+        noAudioContainer.setVisibility(View.INVISIBLE);
+        albumArtContainer.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -485,7 +494,7 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
         } else {
             // If nothing could be retrieved, load the placeholder album art image.
             albumArtImageView.setImageResource(R.drawable.noalbumart);
-            Log.w(TAG, "Album art could not be decoded from SharedPreferences");
+            Log.w(TAG, "Album art could not be decoded from SharedPreferences.");
         }
 
         // Hide the loading indicator
@@ -516,19 +525,6 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
     }
 
     /**
-     * Pushes KRUI studio phone number to user's phone. Only dials, does not make calls (so the user can back out if needed).
-     * FIXME: Move this to its own intent class combined with all other intents this application will make
-     */
-    protected void dialStudio() {
-        String studioNumber = "319-335-8970";
-        String uri = "tel:" + studioNumber.trim();
-        Intent intent = new Intent(Intent.ACTION_DIAL);
-        intent.setData(Uri.parse(uri));
-        startActivity(intent);
-    }
-
-
-    /**
      * Called whenever a new track is displayed on the screen.
      */
     @Override
@@ -545,19 +541,52 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
      * @param message String to display in the status bar.
      * @param isIndefinite true if the message should be displayed until explicitly cancelled by a broadcast message.
      */
-    // FIXME: Rewrite to support indefinite messages and set a default display time constant if not indefinite
     public void showStreamStatusBar(String message, boolean isIndefinite) {
-        LinearLayout statusContainer = (LinearLayout)getActivity().findViewById(R.id.stream_status_container_linearlayout);
-        if (!showStatus) {
-            // Hide the status bar and do nothing else.
-            final Animation animOut = AnimationUtils.loadAnimation(getActivity(), R.anim.translate_down);
-            statusContainer.startAnimation(animOut);
-        } else {
-            // Apply label text, then bring the status bar into view
-            TextView statusLabel = (TextView)getActivity().findViewById(R.id.stream_status_label_textview);
-            statusLabel.setText(message);
-            final Animation animIn = AnimationUtils.loadAnimation(getActivity(), R.anim.translate_up);
-            statusContainer.startAnimation(animIn);
+        final LinearLayout statusContainer = (LinearLayout)getActivity().findViewById(R.id.stream_status_container_linearlayout);
+        // Apply label text, then bring the status bar into view
+        TextView statusLabel = (TextView)getActivity().findViewById(R.id.stream_status_label_textview);
+        statusLabel.setText(message);
+        statusContainer.setVisibility(View.VISIBLE);
+
+        // Construct translation animations from xml.
+        final Animation animIn = AnimationUtils.loadAnimation(getActivity(), R.anim.translate_up);
+        final Animation animOut = AnimationUtils.loadAnimation(getActivity(), R.anim.translate_down);
+        statusContainer.startAnimation(animIn);
+
+        if (!isIndefinite) {
+
+            // When fade in is completed, trigger a fade out animation.
+            animIn.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    animOut.setStartOffset(1200);
+                    statusContainer.startAnimation(animOut);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+                }
+            });
+
+            // When the animation has completely faded out, hide its parent container
+            animOut.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    statusContainer.setVisibility(View.INVISIBLE);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+                }
+            });
         }
     }
 
@@ -565,9 +594,26 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
      * Manually hides the stream status bar from view.
      */
     public void hideStatusBar() {
-        LinearLayout statusContainer = (LinearLayout)getActivity().findViewById(R.id.stream_status_container_linearlayout);
+        Log.v(TAG, "Manually hiding status bar.");
+        final LinearLayout statusContainer = (LinearLayout)getActivity().findViewById(R.id.stream_status_container_linearlayout);
         final Animation animOut = AnimationUtils.loadAnimation(getActivity(), R.anim.translate_down);
+        animOut.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                // Hide the container from view when it has finished animating
+                statusContainer.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
         statusContainer.startAnimation(animOut);
+
     }
 
 }

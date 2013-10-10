@@ -12,8 +12,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Displays KRUI's Programming Schedules.
+ * Displays KRUI's Programming Schedule.
  */
+
+//FIXME: This was the earliest thing I wrote and by far the weakest. This needs a full rewrite. No SQLite nonsense either.
 public class ScheduleFragment extends ListFragment implements DBListener {
 
 	private static final String TAG = KRUIScheduleActivity.class.getName(); // Tag constant for logging purposes
@@ -36,7 +38,6 @@ public class ScheduleFragment extends ListFragment implements DBListener {
 	public void onListItemClick(ListView l, View v, int position, long id) {
 
 		// On click, show detailed information in new activity
-		
 		@SuppressWarnings("unchecked")
 		HashMap<String, String>o = (HashMap<String, String>) l.getItemAtPosition(position);
 		String passId = o.get("show_id");

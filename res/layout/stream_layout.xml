@@ -13,9 +13,9 @@
         <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:id="@+id/stream_album_art_container"
-                android:layout_alignParentBottom="false" android:layout_above="@+id/stream_functions_container_framelayout"
+                android:layout_alignParentBottom="false"
                 android:layout_centerHorizontal="true" android:layout_marginBottom="25dp" android:layout_marginTop="5dp"
-                android:visibility="invisible">
+                android:visibility="invisible" android:layout_below="@+id/album_name_textview">
             <ImageView
                     android:layout_width="300dp"
                     android:layout_height="300dp"
@@ -67,7 +67,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:background="@color/light_gray" android:id="@+id/no_audio_playing_container_relativelayout"
-                android:gravity="center|center_horizontal">
+                android:gravity="center|center_horizontal" android:visibility="visible">
             <TextView
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
@@ -79,20 +79,45 @@
                     android:id="@+id/no_audio_subtext_textview" android:layout_below="@+id/no_audio_text_textview"
                     android:text="@string/no_audio_playing_sub" android:gravity="center" android:layout_marginTop="50dp"/>
         </RelativeLayout>
-        <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Show Status"
-                android:id="@+id/show_status_button_TEST"
-                />
-        <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Hide Status"
-                android:id="@+id/hide_status_button_TEST" android:layout_alignParentRight="true"/>
     </RelativeLayout>
 
 
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:visibility="invisible" android:id="@+id/stream_status_container_linearlayout"
+            android:background="#424242" android:layout_alignTop="@+id/stream_progress_container_relativelayout">
+        <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/stream_status_buffering"
+                android:id="@+id/stream_status_label_textview" android:textColor="@color/white" android:gravity="center"
+                android:textStyle="italic" android:padding="2.5dp" android:textSize="20sp"/>
+    </LinearLayout>
+    <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:id="@+id/stream_progress_container_relativelayout"
+            android:layout_above="@+id/stream_functions_container_relativelayout" android:background="#474747"
+            android:visibility="invisible" android:layout_alignTop="@+id/stream_functions_container_relativelayout">
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" android:id="@+id/record_progress_container_linearlayout"
+                android:gravity="center" android:visibility="invisible">
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00:00"
+                    android:id="@+id/record_progress_int_textview" android:textColor="@color/white" android:padding="5dp"
+                    android:textSize="18sp"/>
+            <ProgressBar
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/record_progress_progressbar" style="@style/ProgressBar.Kruistyle"
+                    android:layout_span="3" android:padding="5dp" android:progress="10"/>
+        </LinearLayout>
+    </RelativeLayout>
     <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="75dp" android:id="@+id/stream_functions_container_relativelayout"
@@ -174,41 +199,6 @@
                         android:layout_span="2"/>
             </TableRow>
         </TableLayout>
-    </RelativeLayout>
-    <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:visibility="visible" android:id="@+id/stream_status_container_linearlayout"
-            android:background="#424242" android:layout_alignTop="@+id/stream_progress_container_relativelayout">
-        <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/stream_status_buffering"
-                android:id="@+id/stream_status_label_textview" android:textColor="@color/white" android:gravity="center"
-                android:textStyle="italic" android:padding="2.5dp" android:textSize="20sp"/>
-    </LinearLayout>
-    <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" android:id="@+id/stream_progress_container_relativelayout"
-            android:layout_above="@+id/stream_functions_container_relativelayout" android:background="#474747">
-        <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" android:id="@+id/stream_progress_container_linearlayout"
-                android:gravity="center">
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="12:00"
-                    android:id="@+id/stream_progress_int_textview" android:textColor="@color/white" android:padding="5dp"
-                    android:textSize="18sp"/>
-            <ProgressBar
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/stream_progress_progressbar" style="@android:style/Widget.ProgressBar.Horizontal"
-                    android:layout_span="3" android:padding="5dp"/>
-        </LinearLayout>
     </RelativeLayout>
 
 </RelativeLayout>

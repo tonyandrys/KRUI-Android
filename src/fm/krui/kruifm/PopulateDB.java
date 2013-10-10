@@ -9,6 +9,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.TimeZone;
 
@@ -20,12 +22,16 @@ public class PopulateDB extends AsyncTask<Void, Integer, Void> {
 	private ProgressDialog pd;
     private DBListener dbListener;
 
-    // Web resources constants          FIXME: Move to external resource
+    // Web resources constants
     private String rootUrl = "https://www.googleapis.com/calendar/v3/calendars/";
     private String mainCalendar = "krui.fm_3165kjuskfgpafro155137000s@group.calendar.google.com";
     private String labCalendar = "krui.fm_9p7f17segeguatpg2k66v3l61o@group.calendar.google.com";
     private String timeMin = "2013-07-07T00:00:00.000-05:00";
     private String timeMax = "2013-07-14T05:00:00.000-05:00";
+
+    // Calendar HashMap constants
+    final public String TIME_MIN = "timeMin";
+    final public String TIME_MAX = "timeMax";
 
     private static final int MAIN = 0x1;
 	private static final int LAB = 0x2;
@@ -62,18 +68,35 @@ public class PopulateDB extends AsyncTask<Void, Integer, Void> {
 	protected void onPostExecute(final Void result) {
         dbListener.onDBFinish();
 	}
+
+    /**
+     * Depending on the current date, this calculates the lower and upper bound of the events such that
+     * we will only retrieve events that occur this week.
+     */
+    protected void calculateDate() {
+
+        Date date = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        int decValue = cal.get(Calendar.DAY_OF_WEEK);
+        
+        HashMap<String, String> dateMap = new HashMap<String, String>();
+    }
+
 	
 	public void buildShowDB(DatabaseHandler d, int station) {
-		
-		// Google Calendar API Query
-		String key  = context.getString(R.string.google_calendar_api_key);
+
+        // Calculate date parameters
+        Date date = new Date();
+        String timeMin;
+        String timeMax;
 		
 		// Depending on input, get the 89.7 calendar or the Lab calendar
 		String apiQuery = "";
 		if (station == MAIN) { 
-		apiQuery = "https://www.googleapis.com/calendar/v3/calendars/krui.fm_3165kjuskfgpafro155137000s@group.calendar.google.com/events?timeMin=2013-07-07T00:00:00.000-05:00&timeMax=2013-07-14T05:00:00.000-05:00&singleEvents=true&orderBy=starttime&key=" + key;
+		apiQuery = "http://krui.fm/kruiapp/json/main_studio.txt";
 		} else if (station == LAB) {
-		apiQuery = "https://www.googleapis.com/calendar/v3/calendars/krui.fm_9p7f17segeguatpg2k66v3l61o@group.calendar.google.com/events?timeMin=2013-07-07T00:00:00.000-05:00&timeMax=2013-07-14T05:00:00.000-05:00&singleEvents=true&orderBy=starttime&key=" + key;
+		apiQuery = "http://krui.fm/kruiapp/json/the_lab.txt";
 		}
 		JSONObject calendarObj  = new JSONObject();
 		calendarObj = JSONFunctions.getJSONObjectFromURL(apiQuery);

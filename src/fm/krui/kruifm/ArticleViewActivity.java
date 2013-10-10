@@ -3,6 +3,7 @@ package fm.krui.kruifm;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -50,7 +51,7 @@ public class ArticleViewActivity extends Activity {
         // Apply extracted info to views
         articleTitleTextView.setText(article.getTitle());
         authorTextView.setText(getAuthor(article));
-        articleContentTextView.setText(getArticleText(article));
+        articleContentTextView.setText(Html.fromHtml(getArticleText(article)));
 
         // Hide loading view
         showLoadingScreen(false);
