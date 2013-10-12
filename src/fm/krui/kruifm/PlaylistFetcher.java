@@ -23,7 +23,7 @@ import java.util.TimeZone;
  */
 
 //TODO: Make the hashMap notification of listview SIGNIFICANTLY more elegant. Kind of pathetic right now.
-public class PlaylistFetcher extends AsyncTask<Integer, Void, ArrayList<HashMap<String, Track>>>{
+public class PlaylistFetcher extends AsyncTask<Integer, Void, ArrayList<HashMap<String, Track>>> {
 
     private static final String TAG = PlaylistFetcher.class.getName();
     protected Activity activity;

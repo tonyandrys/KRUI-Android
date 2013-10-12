@@ -1,66 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/scrollView">
+
+<RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" android:id="@+id/schedule_container_relativelayout"
                 android:padding="1dp">
 
-
-    <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="120dp" android:id="@+id/orangeevent_ll"
-            android:layout_alignTop="@+id/time_marker_container_tablelayout"
-            android:layout_marginLeft="55dp"
-            android:background="@drawable/orange_rounded_event" android:layout_marginRight="5dp"
-            android:padding="5dp" android:layout_alignLeft="@+id/time_marker_container_tablelayout"
-            android:visibility="gone">
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="...Back To Saturn X!"
-                android:id="@+id/textView9" android:layout_gravity="center_horizontal"/>
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text='"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."'
-                android:id="@+id/textView10" android:lines="4" android:enabled="true" android:ellipsize="end"
-                android:textStyle="italic" android:layout_marginTop="10dp"/>
-    </LinearLayout>
-    <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="60dp" android:layout_alignTop="@+id/time_marker_container_tablelayout"
-            android:layout_marginLeft="55dp" android:layout_marginRight="5dp" android:layout_marginTop="120dp"
-            android:background="@drawable/orange_rounded_event" android:padding="5dp" android:visibility="gone">
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Hour long show"
-                android:id="@+id/textView11" android:layout_gravity="center_horizontal"/>
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="I'm an hour long. Fuck."
-                android:id="@+id/textView12" android:layout_gravity="center_horizontal" android:textStyle="italic"
-                android:layout_marginTop="5dp"/>
-    </LinearLayout>
-    <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="45dp" android:layout_marginLeft="55dp" android:layout_marginRight="5dp"
-            android:layout_marginTop="195dp" android:background="@drawable/orange_rounded_event"
-            android:visibility="gone">
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Black Sabbath In Exile"
-                android:id="@+id/textView13" android:layout_gravity="center_horizontal"/>
-    </LinearLayout>
-    <ScrollView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/scrollView">
         <TableLayout
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent" android:id="@+id/time_marker_container_tablelayout"
@@ -141,6 +90,96 @@
                 <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
                            android:id="@+id/imageView5" android:layout_column="1" android:src="@drawable/schedule_cell_background"
                            android:scaleType="fitXY"/>
+            </TableRow>
+            <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:id="@+id/tableRow29">
+                <TextView android:layout_width="50dp" android:layout_height="30dp" android:text="3am"
+                          android:id="@+id/textView9" android:layout_column="0" android:padding="5dp"
+                          android:background="@drawable/schedulebackground"/>
+                <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
+                           android:id="@+id/imageView38" android:layout_column="1"
+                           android:src="@drawable/schedule_cell_background" android:scaleType="fitXY"/>
+            </TableRow>
+            <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:id="@+id/tableRow30">
+                <TextView android:layout_width="50dp" android:layout_height="30dp" android:id="@+id/textView10"
+                          android:layout_column="0" android:padding="5dp" android:background="#F2F2F2"
+                          android:autoText="false"/>
+                <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
+                           android:id="@+id/imageView39" android:layout_column="1"
+                           android:src="@drawable/schedule_cell_background" android:scaleType="fitXY"/>
+            </TableRow>
+            <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:id="@+id/tableRow31">
+                <TextView android:layout_width="50dp" android:layout_height="30dp" android:text="4am"
+                          android:id="@+id/textView11" android:layout_column="0" android:padding="5dp"
+                          android:background="@drawable/schedulebackground"/>
+                <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
+                           android:id="@+id/imageView40" android:layout_column="1"
+                           android:src="@drawable/schedule_cell_background" android:scaleType="fitXY"/>
+            </TableRow>
+            <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:id="@+id/tableRow32">
+                <TextView android:layout_width="50dp" android:layout_height="30dp" android:id="@+id/textView12"
+                          android:layout_column="0" android:padding="5dp" android:background="#F2F2F2"
+                          android:autoText="false"/>
+                <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
+                           android:id="@+id/imageView41" android:layout_column="1"
+                           android:src="@drawable/schedule_cell_background" android:scaleType="fitXY"/>
+            </TableRow>
+            <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:id="@+id/tableRow33">
+                <TextView android:layout_width="50dp" android:layout_height="30dp" android:text="5am"
+                          android:id="@+id/textView13" android:layout_column="0" android:padding="5dp"
+                          android:background="@drawable/schedulebackground"/>
+                <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
+                           android:id="@+id/imageView42" android:layout_column="1"
+                           android:src="@drawable/schedule_cell_background" android:scaleType="fitXY"/>
+            </TableRow>
+            <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:id="@+id/tableRow34">
+                <TextView android:layout_width="50dp" android:layout_height="30dp" android:id="@+id/textView43"
+                          android:layout_column="0" android:padding="5dp" android:background="#F2F2F2"
+                          android:autoText="false"/>
+                <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
+                           android:id="@+id/imageView43" android:layout_column="1"
+                           android:src="@drawable/schedule_cell_background" android:scaleType="fitXY"/>
+            </TableRow>
+            <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:id="@+id/tableRow35">
+                <TextView android:layout_width="50dp" android:layout_height="30dp" android:text="6am"
+                          android:id="@+id/textView44" android:layout_column="0" android:padding="5dp"
+                          android:background="@drawable/schedulebackground"/>
+                <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
+                           android:id="@+id/imageView44" android:layout_column="1"
+                           android:src="@drawable/schedule_cell_background" android:scaleType="fitXY"/>
+            </TableRow>
+            <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:id="@+id/tableRow36">
+                <TextView android:layout_width="50dp" android:layout_height="30dp" android:id="@+id/textView45"
+                          android:layout_column="0" android:padding="5dp" android:background="#F2F2F2"
+                          android:autoText="false"/>
+                <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
+                           android:id="@+id/imageView45" android:layout_column="1"
+                           android:src="@drawable/schedule_cell_background" android:scaleType="fitXY"/>
+            </TableRow>
+            <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:id="@+id/tableRow37">
+                <TextView android:layout_width="50dp" android:layout_height="30dp" android:text="7am"
+                          android:id="@+id/textView46" android:layout_column="0" android:padding="5dp"
+                          android:background="@drawable/schedulebackground"/>
+                <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
+                           android:id="@+id/imageView46" android:layout_column="1"
+                           android:src="@drawable/schedule_cell_background" android:scaleType="fitXY"/>
+            </TableRow>
+            <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:id="@+id/tableRow38">
+                <TextView android:layout_width="50dp" android:layout_height="30dp" android:id="@+id/textView47"
+                          android:layout_column="0" android:padding="5dp" android:background="#F2F2F2"
+                          android:autoText="false"/>
+                <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
+                           android:id="@+id/imageView47" android:layout_column="1"
+                           android:src="@drawable/schedule_cell_background" android:scaleType="fitXY"/>
             </TableRow>
             <TableRow
                     android:layout_width="fill_parent"
@@ -337,6 +376,85 @@
                            android:id="@+id/imageView29" android:layout_column="1"
                            android:src="@drawable/schedule_cell_background" android:scaleType="fitXY"/>
             </TableRow>
+            <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:id="@+id/tableRow21">
+                <TextView android:layout_width="50dp" android:layout_height="30dp" android:text="8pm"
+                          android:id="@+id/textView35" android:layout_column="0" android:padding="5dp"
+                          android:background="@drawable/schedulebackground"/>
+                <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
+                           android:id="@+id/imageView30" android:layout_column="1"
+                           android:src="@drawable/schedule_cell_background" android:scaleType="fitXY"/>
+            </TableRow>
+            <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:id="@+id/tableRow22">
+                <TextView android:layout_width="50dp" android:layout_height="30dp" android:id="@+id/textView36"
+                          android:layout_column="0" android:padding="5dp" android:background="#F2F2F2"/>
+                <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
+                           android:id="@+id/imageView31" android:layout_column="1"
+                           android:src="@drawable/schedule_cell_background" android:scaleType="fitXY"/>
+            </TableRow>
+            <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:id="@+id/tableRow23">
+                <TextView android:layout_width="50dp" android:layout_height="30dp" android:text="9pm"
+                          android:id="@+id/textView37" android:layout_column="0" android:padding="5dp"
+                          android:background="@drawable/schedulebackground"/>
+                <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
+                           android:id="@+id/imageView32" android:layout_column="1"
+                           android:src="@drawable/schedule_cell_background" android:scaleType="fitXY"/>
+            </TableRow>
+            <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:id="@+id/tableRow24">
+                <TextView android:layout_width="50dp" android:layout_height="30dp" android:id="@+id/textView38"
+                          android:layout_column="0" android:padding="5dp" android:background="#F2F2F2"/>
+                <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
+                           android:id="@+id/imageView33" android:layout_column="1"
+                           android:src="@drawable/schedule_cell_background" android:scaleType="fitXY"/>
+            </TableRow>
+            <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:id="@+id/tableRow25">
+                <TextView android:layout_width="50dp" android:layout_height="30dp" android:text="10pm"
+                          android:id="@+id/textView39" android:layout_column="0" android:padding="5dp"
+                          android:background="@drawable/schedulebackground"/>
+                <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
+                           android:id="@+id/imageView34" android:layout_column="1"
+                           android:src="@drawable/schedule_cell_background" android:scaleType="fitXY"/>
+            </TableRow>
+            <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:id="@+id/tableRow26">
+                <TextView android:layout_width="50dp" android:layout_height="30dp" android:id="@+id/textView40"
+                          android:layout_column="0" android:padding="5dp" android:background="#F2F2F2"/>
+                <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
+                           android:id="@+id/imageView35" android:layout_column="1"
+                           android:src="@drawable/schedule_cell_background" android:scaleType="fitXY"/>
+            </TableRow>
+            <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:id="@+id/tableRow27">
+                <TextView android:layout_width="50dp" android:layout_height="30dp" android:text="11pm"
+                          android:id="@+id/textView41" android:layout_column="0" android:padding="5dp"
+                          android:background="@drawable/schedulebackground"/>
+                <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
+                           android:id="@+id/imageView36" android:layout_column="1"
+                           android:src="@drawable/schedule_cell_background" android:scaleType="fitXY"/>
+            </TableRow>
+            <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:id="@+id/tableRow28">
+                <TextView android:layout_width="50dp" android:layout_height="30dp" android:id="@+id/textView42"
+                          android:layout_column="0" android:padding="5dp" android:background="#F2F2F2"/>
+                <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent"
+                           android:id="@+id/imageView37" android:layout_column="1"
+                           android:src="@drawable/schedule_cell_background" android:scaleType="fitXY"/>
+            </TableRow>
         </TableLayout>
-    </ScrollView>
+    <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" android:id="@+id/schedule_loading_framelayout"
+            android:background="@color/light_gray" android:visibility="gone">
+        <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/progressBar" android:layout_gravity="center" android:background="@drawable/custom_progress_bar"/>
+    </FrameLayout>
+
 </RelativeLayout>
+
+        </ScrollView>

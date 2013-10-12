@@ -85,11 +85,6 @@ public class PopulateDB extends AsyncTask<Void, Integer, Void> {
 
 	
 	public void buildShowDB(DatabaseHandler d, int station) {
-
-        // Calculate date parameters
-        Date date = new Date();
-        String timeMin;
-        String timeMax;
 		
 		// Depending on input, get the 89.7 calendar or the Lab calendar
 		String apiQuery = "";
