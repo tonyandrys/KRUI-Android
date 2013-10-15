@@ -35,3 +35,6 @@ Written to provide a quick and functional interface to the station's web site ht
   - Google Play Services Library - Requirement for Google APIs
 
   - Google Calendar API - Retrieving calendar entries from KRUI's program schedule.
+
+  - Twitter API - Retrieves twitter feed of the twitter account affiliated with the current show.
+
