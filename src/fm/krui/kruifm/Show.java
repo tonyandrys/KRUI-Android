@@ -2,136 +2,113 @@ package fm.krui.kruifm;
 
 public class Show {
 	
-	private String _id;
-	private int _station;
-	private String _title;
-	private String _startTime;
-	private String _endTime;
-	private String _htmlLink;
-	private String _description;
-	private int _dayOfWeek;
-	
-	// Stored as int since SQLite cannot store boolean values natively. 1 = true, 0 = false.
-	private int _music;
-	private int _talk;
-	private int _sports;
-	private int _special;
-	
+	private String id;
+	private int station;
+	private String title;
+
+    private String startTimeUTC;
+	private String endTimeUTC;
+    private int startTimeMinutes;
+    private int endTimeMinutes;
+	private String htmlLink;
+	private String description;
+	private int dayOfWeek;
+
 	// default constructor
 	Show() {
 		
 	}
-	
-	// fully parameterized constructor
-	Show (String id, int station, String title, int dayOfWeek, String startTime, String endTime, String htmlLink, String description, int music, int talk, int sports, int special) {
-		_id = id;
-		_station = station;
-		_title = title;
-		_dayOfWeek = dayOfWeek;
-		_startTime = startTime;
-		_endTime = endTime;
-		_htmlLink = htmlLink;
-		_description = description;
-		_music = music;
-		_talk = talk;
-		_sports = sports;
-		_special = special;
-	}
 
-	public String get_id() {
-		return _id;
-	}
+    public Show(String id, int station, String title, String startTimeUTC, String endTimeUTC, int startTimeMinutes, int endTimeMinutes, String htmlLink, String description, int dayOfWeek) {
+        this.id = id;
+        this.station = station;
+        this.title = title;
+        this.startTimeUTC = startTimeUTC;
+        this.endTimeUTC = endTimeUTC;
+        this.startTimeMinutes = startTimeMinutes;
+        this.endTimeMinutes = endTimeMinutes;
+        this.htmlLink = htmlLink;
+        this.description = description;
+        this.dayOfWeek = dayOfWeek;
+    }
 
-	public void set_id(String _id) {
-		this._id = _id;
-	}
-	
-	public int get_station() {
-		return _station;
-	}
-	
-	public void set_station(int station) {
-		this._station = station;
-	}
-	
-	public String get_title() {
-		return _title;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void set_title(String _title) {
-		this._title = _title;
-	}
-	
-	public void set_dayOfWeek(int dayOfWeek) {
-		this._dayOfWeek = dayOfWeek;
-	}
-	
-	public int get_dayOfWeek() {
-		return _dayOfWeek;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public String get_startTime() {
-		return _startTime;
-	}
+    public int getStation() {
+        return station;
+    }
 
-	public void set_startTime(String _startTime) {
-		this._startTime = _startTime;
-	}
+    public void setStation(int station) {
+        this.station = station;
+    }
 
-	public String get_endTime() {
-		return _endTime;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public void set_endTime(String _endTime) {
-		this._endTime = _endTime;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public String get_htmlLink() {
-		return _htmlLink;
-	}
+    public String getStartTimeUTC() {
+        return startTimeUTC;
+    }
 
-	public void set_htmlLink(String _htmlLink) {
-		this._htmlLink = _htmlLink;
-	}
+    public void setStartTimeUTC(String startTimeUTC) {
+        this.startTimeUTC = startTimeUTC;
+    }
 
-	public String get_description() {
-		return _description;
-	}
+    public String getEndTimeUTC() {
+        return endTimeUTC;
+    }
 
-	public void set_description(String _description) {
-		this._description = _description;
-	}
+    public void setEndTimeUTC(String endTimeUTC) {
+        this.endTimeUTC = endTimeUTC;
+    }
 
-	public int get_music() {
-		return _music;
-	}
+    public int getStartTimeMinutes() {
+        return startTimeMinutes;
+    }
 
-	public void set_music(int _music) {
-		this._music = _music;
-	}
+    public void setStartTimeMinutes(int startTimeMinutes) {
+        this.startTimeMinutes = startTimeMinutes;
+    }
 
-	public int get_talk() {
-		return _talk;
-	}
+    public int getEndTimeMinutes() {
+        return endTimeMinutes;
+    }
 
-	public void set_talk(int _talk) {
-		this._talk = _talk;
-	}
+    public void setEndTimeMinutes(int endTimeMinutes) {
+        this.endTimeMinutes = endTimeMinutes;
+    }
 
-	public int get_sports() {
-		return _sports;
-	}
+    public String getHtmlLink() {
+        return htmlLink;
+    }
 
-	public void set_sports(int _sports) {
-		this._sports = _sports;
-	}
+    public void setHtmlLink(String htmlLink) {
+        this.htmlLink = htmlLink;
+    }
 
-	public int get_special() {
-		return _special;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public void set_special(int _special) {
-		this._special = _special;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
+    public int getDayOfWeek() {
+        return dayOfWeek;
+    }
+
+    public void setDayOfWeek(int dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
+    }
 }

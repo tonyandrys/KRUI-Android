@@ -1,10 +1,7 @@
 package fm.krui.kruifm;
 
-import android.app.ActionBar;
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
-import android.widget.TextView;
 
 public class ShowDetailActivity extends Activity {
 
@@ -14,23 +11,26 @@ public class ShowDetailActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.showdetail_layout);
-		
+
+        /*
+
+            ***Temporarily Disabled until I complete removal of database storage***
+
 		// enable back button in ActionBar
 		// TODO: Modularize this pattern because it will be used in all child views.
 		ActionBar actionbar = getActionBar();
 		actionbar.setDisplayHomeAsUpEnabled(true);
 		
 		// Retrieve info on this show
-		DatabaseHandler dh = new DatabaseHandler(this);
 		Intent intent = getIntent();
 		String showId = intent.getExtras().getString("show_id");
 		Show show = dh.getShow(showId);
-		String title = show.get_title();
-		int dayOfWeek = show.get_dayOfWeek();
+		String title = show.getTitle();
+		int dayOfWeek = show.getDayOfWeek();
 		String dayOfWeekText = Utils.weekdayIntToStr(dayOfWeek);
-		String description = show.get_description();
-		String startTime = show.get_startTime();
-		String endTime = show.get_endTime();
+		String description = show.getDescription();
+		String startTime = show.getStartTimeUTC();
+		String endTime = show.getEndTimeUTC();
 		
 		// Get views and set retrieved values.
 		TextView titleView = (TextView)findViewById(R.id.show_title_field);
@@ -41,7 +41,7 @@ public class ShowDetailActivity extends Activity {
 		titleView.setText(title);
 		dayOfWeekView.setText("Day of Week: " + dayOfWeekText);
 		timeView.setText("Time: " + startTime + " - " + endTime);
-		descriptionView.setText("Description: " + description);
+		descriptionView.setText("Description: " + description);*/
 
 	}
 }
