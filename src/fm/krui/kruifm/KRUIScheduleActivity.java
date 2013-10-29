@@ -1,5 +1,6 @@
 package fm.krui.kruifm;
 
+import android.app.ActionBar;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -65,6 +66,12 @@ public class KRUIScheduleActivity extends FragmentActivity implements TextListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.schedule_activity_layout);
+
+        // Enable back button in this activity
+        ActionBar actionbar = getActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setSubtitle("Our 7 Day Program Schedule");
+
         showLoadingScreen(true);
         cal = new GregorianCalendar();
 
@@ -147,17 +154,16 @@ public class KRUIScheduleActivity extends FragmentActivity implements TextListen
         saturday = new ArrayList<Show>();
 
         // Pull every show off the Priority Queue and store them
-        for (int i=0; i<pq.size(); i++) {
+        int size = pq.size();
+        for (int i=0; i<size; i++) {
             storeShow(pq.poll());
+            Log.v(TAG, "PQ Count:" + pq.size());
         }
 
         // Fill date list
         dateList = new ArrayList<String>();
         cal.get(Calendar.DAY_OF_WEEK);
         //dateList.add();
-
-        // Hide loading screen
-        showLoadingScreen(false);
 
         // Hook up pager and pagerAdapter and hide loading screen
         pager = (ViewPager)findViewById(R.id.schedule_pager);

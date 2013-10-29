@@ -174,7 +174,7 @@ public class ScheduleFragment extends Fragment {
                 break;
             case 3:
                 // Sports
-                res = R.drawable.green_rounded_event;
+                res = R.drawable.gray_rounded_event;
                 break;
             case 4:
                 // News/Talk
