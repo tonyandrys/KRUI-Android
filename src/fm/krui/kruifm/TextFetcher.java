@@ -19,62 +19,67 @@ import java.net.URLConnection;
  */
 
 /**
- * Downloads a text file from the internet and stores it locally.
+ * Downloads text files from the internet and stores them locally.
  */
-public class TextFetcher extends AsyncTask<Integer, Void, Void> {
+public class TextFetcher extends AsyncTask<Void, Void, Void> {
 
     final private String TAG = TextFetcher.class.getName();
 
-    String query; // URL pointing to text file to download
+    String[] urls; // URLs pointing to text files to download
     Activity activity;
-    String filename;
+    String[] filenames;
     TextListener callback;
 
-    public TextFetcher(Activity activity, String url, String filename, TextListener listener) throws IOException {
-        this.query = url;
+    public TextFetcher(Activity activity, String[] urls, String[] filenames, TextListener listener) throws IOException {
+        this.urls = urls;
         this.activity = activity;
-        this.filename = filename;
+        this.filenames = filenames;
         this.callback = listener;
     }
 
     @Override
-    protected Void doInBackground(Integer... params) {
+    protected Void doInBackground(Void... Voids) {
+        Log.v(TAG, "Filenames.length = " + filenames.length);
+        for (int i=0; i<filenames.length; i++) {
+            File file = new File(activity.getFilesDir(), filenames[i]);
 
-        File file = new File(activity.getFilesDir(), filename);
-
-        // Thanks to MrYanDao for this method!
-        int count;
-        try {
-            URL url = new URL(query);
-            URLConnection connection = url.openConnection();
-            connection.connect();
-            int lengthOfFile = connection.getContentLength();
-            InputStream is = url.openStream();
-            FileOutputStream fos = new FileOutputStream(file);
-            byte data[] = new byte[1024];
-            long total = 0;
-            int progress = 0;
-            while ((count = is.read(data)) != -1) {
-                total += count;
-                int progress_temp = (int) total * 100 / lengthOfFile;
+            // Thanks to MrYanDao for this method!
+            int count;
+            try {
+                URL url = new URL(urls[i]);
+                URLConnection connection = url.openConnection();
+                connection.connect();
+                int lengthOfFile = connection.getContentLength();
+                InputStream is = url.openStream();
+                FileOutputStream fos = new FileOutputStream(file);
+                byte data[] = new byte[1024];
+                long total = 0;
+                int progress = 0;
+                while ((count = is.read(data)) != -1) {
+                    total += count;
+                    int progress_temp = (int) total * 100 / lengthOfFile;
                         /*publishProgress("" + progress_temp); //only for asynctask
                         if (progress_temp % 10 == 0 && progress != progress_temp) {
                             progress = progress_temp;
                         }*/
-                fos.write(data, 0, count);
+                    fos.write(data, 0, count);
+                }
+                is.close();
+                fos.close();
+                Log.v(TAG, "Text downloaded from " + filenames[i]+ "!");
+                Log.v(TAG, "Stored as: " + filenames[i]);
+            } catch (Exception e) {
+                Log.e(TAG, "Unable to download text file: " + e.getMessage());
             }
-            is.close();
-            fos.close();
-        } catch (Exception e) {
-            Log.e("ERROR DOWNLOADING",
-                    "Unable to download" + e.getMessage());
+            Log.v(TAG, "For loop iterated!");
         }
+        Log.v(TAG, "Returning null.");
         return null;
     }
 
     @Override
     protected void onPostExecute(Void voids) {
-        Log.v(TAG, "Text downloaded!");
+        Log.v(TAG, "Calling onTextDownloaded!");
         callback.onTextDownloaded();
     }
 }

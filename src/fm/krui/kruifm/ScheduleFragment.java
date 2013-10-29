@@ -53,7 +53,7 @@ public class ScheduleFragment extends Fragment {
         for (int i=0; i<showList.size(); i++) {
             Show show = showList.get(i);
             // TODO: Include Show object in addShow method signature to show more information to the user on click
-            addShow(show.getTitle(), show.getDescription(), show.getStartTimeMinutes(), show.getEndTimeMinutes());
+            addShow(show.getTitle(), show.getDescription(), show.getStartTimeMinutes(), show.getEndTimeMinutes(), show.getCategory());
         }
     }
 
@@ -68,8 +68,16 @@ public class ScheduleFragment extends Fragment {
      * @param description Description of show to display
      * @param startTime Start time of show in minutes from midnight
      * @param endTime End time of show in minutes from midnight
+     * @param category Format of this show, required to correctly color the event.
+     *
+     * Valid settings for category include:
+     *                 1 - Regular Rotation
+     *                 2 - Music Speciality
+     *                 3 - Sports
+     *                 4 - News/Talk
+     *                 5 - Specials
      */
-    private void addShow(String title, String description, int startTime, int endTime) {
+    private void addShow(String title, String description, int startTime, int endTime, int category) {
 
         /* Build the LinearLayout to function as the container for this show. Since the size of the container is to represent
         the length of the show, its height must be proportional (1dp = 1 minute) to the length. Determine length by finding the difference
@@ -101,7 +109,9 @@ public class ScheduleFragment extends Fragment {
         LinearLayout eventLL = new LinearLayout(getActivity());
         eventLL.setOrientation(LinearLayout.VERTICAL);
         eventLL.setPadding(dpToPixels(5), dpToPixels(2), dpToPixels(5), dpToPixels(5));
-        eventLL.setBackgroundResource(R.drawable.orange_rounded_event);
+
+        // Get background for this event
+        eventLL.setBackgroundResource(getEventBackground(category));
 
         /* Add title of event to LinearLayout */
         TextView titleTV = new TextView(getActivity());
@@ -144,6 +154,38 @@ public class ScheduleFragment extends Fragment {
         /* Add this view to the schedule UI */
         RelativeLayout rl = (RelativeLayout)rootView.findViewById(R.id.schedule_container_relativelayout);
         rl.addView(eventLL, rrLayoutParams);
+    }
+
+    /**
+     * Returns the resource ID for an event based on the show category.
+     * @param category Show category as an integer (see addShow() for this mapping)
+     * @return resID of background drawable
+     */
+    private int getEventBackground(int category) {
+        int res = 0;
+        switch (category) {
+            case 1:
+                // Regular Rotation
+                res = R.drawable.blue_rounded_event;
+                break;
+            case 2:
+                // Music Speciality
+                res = R.drawable.orange_rounded_event;
+                break;
+            case 3:
+                // Sports
+                res = R.drawable.green_rounded_event;
+                break;
+            case 4:
+                // News/Talk
+                res = R.drawable.red_rounded_event;
+                break;
+            case 5:
+                // Specials
+                res = R.drawable.purple_rounded_event;
+                break;
+        }
+        return res;
     }
 
     /**

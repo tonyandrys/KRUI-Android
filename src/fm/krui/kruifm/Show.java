@@ -5,7 +5,6 @@ public class Show {
 	private String id;
 	private int station;
 	private String title;
-
     private String startTimeUTC;
 	private String endTimeUTC;
     private int startTimeMinutes;
@@ -13,6 +12,9 @@ public class Show {
 	private String htmlLink;
 	private String description;
 	private int dayOfWeek;
+
+    // 1 - RR, 2 - MS, 3 - Sports, 4 - News/Talk, 5 - Special
+    private int category;
 
 	// default constructor
 	Show() {
@@ -47,6 +49,15 @@ public class Show {
     public void setStation(int station) {
         this.station = station;
     }
+
+    public int getCategory() {
+        return category;
+    }
+
+    public void setCategory(int category) {
+        this.category = category;
+    }
+
 
     public String getTitle() {
         return title;

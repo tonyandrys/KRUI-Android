@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -90,6 +91,10 @@ public class TwitterFragment extends ListFragment implements HTTPConnectionListe
             twitterManager.getTimeline(dj.getTwitter(), TWEET_COUNT, false);
         } else {
             Log.e(TAG, "No twitter username found!");
+            // Stop loading and inform the user no timeline can be displayed
+            TextView error = (TextView)rootView.findViewById(R.id.no_twitter_account_textview);
+            showLoadingScreen(false);
+            error.setVisibility(View.VISIBLE);
         }
     }
 
@@ -116,7 +121,6 @@ public class TwitterFragment extends ListFragment implements HTTPConnectionListe
             return;
 
         } else {
-            Log.v(TAG, "Timeline request reached!");
             tweetList = new ArrayList<Tweet>();
             tweetList = twitterManager.processJSONTimeline(result);
 

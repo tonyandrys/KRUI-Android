@@ -1,5 +1,7 @@
 package fm.krui.kruifm;
 
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -23,11 +25,35 @@ public class KRUIScheduleActivity extends FragmentActivity implements TextListen
 
     private static final String TAG = KRUIScheduleActivity.class.getName();
     private static final int FRAGMENT_COUNT = 7; // seven days of the week, seven fragments
+
+    // Cache file names to store schedule information
     private static final String MAIN_SCHEDULE_FILENAME = "main-studio-json";
+    private static final String MAIN_SCHEDULE_MS_FILENAME = "main-studio-ms-json";
+    private static final String MAIN_SCHEDULE_RR_FILENAME = "main-studio-rr-json";
+    private static final String MAIN_SCHEDULE_S_FILENAME = "main-studio-s-json";
+    private static final String MAIN_SCHEDULE_NT_FILENAME = "main-studio-nt-json";
+    private static final String MAIN_SCHEDULE_SP_FILENAME = "main-studio-sp-json";
     private static final String LAB_SCHEDULE_FILENAME = "lab-json";
 
-    // Show storage (shows by weekday are stored by index)
-    private ArrayList<ArrayList<Show>> showList;
+    // URL locations of show JSON data
+    private static final String ROOT_URL = "http://krui.fm/kruiapp/json/";
+    private static final String MAIN_SCHEDULE_RR_URL = "main_studio_rr.txt";
+    private static final String MAIN_SCHEDULE_MS_URL = "main_studio_ms.txt";
+    private static final String MAIN_SCHEDULE_S_URL = "main_studio_s.txt";
+    private static final String MAIN_SCHEDULE_NT_URL = "main_studio_nt.txt";
+    private static final String MAIN_SCHEDULE_SP_URL = "main_studio_sp.txt";
+
+    // Show storage by weekday
+    private ArrayList<Show> sunday;
+    private ArrayList<Show> monday;
+    private ArrayList<Show> tuesday;
+    private ArrayList<Show> wednesday;
+    private ArrayList<Show> thursday;
+    private ArrayList<Show> friday;
+    private ArrayList<Show> saturday;
+
+    // Show storage used as cache before saving to showList
+    PriorityQueue<Show> pq;
 
     private ViewPager pager;
     private FragmentPagerAdapter pagerAdapter;
@@ -35,39 +61,182 @@ public class KRUIScheduleActivity extends FragmentActivity implements TextListen
     private GregorianCalendar cal;
     private ArrayList<String> dateList;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.schedule_activity_layout);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.schedule_activity_layout);
         showLoadingScreen(true);
         cal = new GregorianCalendar();
 
-        // Download all events for Monday (temporarily for now, will eventually change to all events).
-                String apiQuery = "http://krui.fm/kruiapp/json/main_studio.txt";
+        // Download show data
+        downloadShowData();
+    }
 
-        // Download JSON text file
+    /**
+     * Downloads JSON-based show data from KRUI's servers, caches it, and parses it into Show objects to be displayed.
+     * Filenames of each cache file are stored as member constants
+     * Categories are represented as integers which determine event coloring for all shows pulled from this text file.
+     *                 1 - Regular Rotation
+     *                 2 - Music Speciality
+     *                 3 - Sports
+     *                 4 - News/Talk
+     *                 5 - Special Programming
+     */
+    private void downloadShowData() {
+
+        // Download all 5 text files, each one stores data from one category of show.
+        String[] urls = {ROOT_URL + MAIN_SCHEDULE_RR_URL, ROOT_URL + MAIN_SCHEDULE_MS_URL, ROOT_URL + MAIN_SCHEDULE_S_URL, ROOT_URL + MAIN_SCHEDULE_NT_URL, ROOT_URL + MAIN_SCHEDULE_SP_URL};
+
+        // Store each text file onto internal storage to avoid having to download information every time this activity is called.
+        String[] filenames = {MAIN_SCHEDULE_RR_FILENAME, MAIN_SCHEDULE_MS_FILENAME, MAIN_SCHEDULE_S_FILENAME, MAIN_SCHEDULE_NT_FILENAME, MAIN_SCHEDULE_SP_FILENAME};
+
+        // Execute process
+        Log.v(TAG, "About to launch TextFetcher to grab JSON files");
         try {
-            TextFetcher tf = new TextFetcher(this, apiQuery, MAIN_SCHEDULE_FILENAME, this);
-            tf.execute();
+            TextFetcher tf = new TextFetcher(this, urls, filenames, this);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                tf.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void[])null);
+            } else {
+                tf.execute((Void[])null);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-	}
+
+    }
 
     @Override
     public void onTextDownloaded() {
 
-        // Initialize show list
-        // showList = [ sunday, monday, tuesday, wednesday, thursday, friday, saturday ]
-        showList = new ArrayList<ArrayList<Show>>();
+        String[] urls = {MAIN_SCHEDULE_RR_URL, MAIN_SCHEDULE_MS_URL, MAIN_SCHEDULE_S_URL, MAIN_SCHEDULE_NT_URL, MAIN_SCHEDULE_SP_URL};
+        String[] filenames = {MAIN_SCHEDULE_RR_FILENAME, MAIN_SCHEDULE_MS_FILENAME, MAIN_SCHEDULE_S_FILENAME, MAIN_SCHEDULE_NT_FILENAME, MAIN_SCHEDULE_SP_FILENAME};
 
-        // Read text file
-        try {
-            calendarObj = new JSONObject(readTextFile(new File(getFilesDir(), MAIN_SCHEDULE_FILENAME)));
-        } catch (JSONException e) {
-            Log.e(TAG, "Error converting text file to JSON!");
-            e.printStackTrace();
+        // Initialize a Priority Queue which will cache show objects before sorting into the final showList.
+        pq = new PriorityQueue<Show>(11, new ShowComparator());
+
+        // For each day of the week, scan all five event categories
+        // For each text file we downloaded, parse the show data inside and store them in showList.
+        for (int k=0; k<filenames.length; k++) {
+            Log.v(TAG, "* Beginning scan of category: " + filenames[k]);
+
+            // Read text file
+            try {
+                // Construct a JSONObject from the stored text file containing events of this category
+                JSONObject calObj = new JSONObject(readTextFile(new File(getFilesDir(), filenames[k])));
+
+                // Store Sun-Sat events from this category in the Priority Queue
+                parseShowData(calObj, k+1);
+
+            } catch (NullPointerException e) {
+                Log.e(TAG, "No shows found for category: " + filenames[k]);
+            } catch (JSONException e) {
+                Log.e(TAG, "JSONException thrown when processing shows!");
+            }
+
         }
+
+        Log.v(TAG, "All shows have been parsed, now sort into their proper place in showList.");
+
+        // Initialize show storage
+        sunday = new ArrayList<Show>();
+        monday = new ArrayList<Show>();
+        tuesday = new ArrayList<Show>();
+        wednesday = new ArrayList<Show>();
+        thursday = new ArrayList<Show>();
+        friday = new ArrayList<Show>();
+        saturday = new ArrayList<Show>();
+
+        // Pull every show off the Priority Queue and store them
+        for (int i=0; i<pq.size(); i++) {
+            storeShow(pq.poll());
+        }
+
+        // Fill date list
+        dateList = new ArrayList<String>();
+        cal.get(Calendar.DAY_OF_WEEK);
+        //dateList.add();
+
+        // Hide loading screen
+        showLoadingScreen(false);
+
+        // Hook up pager and pagerAdapter and hide loading screen
+        pager = (ViewPager)findViewById(R.id.schedule_pager);
+        pagerAdapter = new SchedulePagerAdapter(getSupportFragmentManager());
+        pager.setAdapter(pagerAdapter);
+        showLoadingScreen(false);
+
+    }
+
+    /**
+     * Stores the passed Show into its correct day-of-week list for use by ScheduleFragments.
+     * @param show Show to store
+     */
+    private void storeShow(Show show) {
+        Log.v(TAG, "Trying to store " + show.getTitle());
+        int w = show.getDayOfWeek();
+        String log = "SOMETHING BROKE"; //FIXME: DELETE ME I AM USELESS IF NOT FOR DEBUGGING
+        switch (w) {
+            case 1:
+                sunday.add(show);
+                log = "sunday";
+                break;
+            case 2:
+                monday.add(show);
+                log = "monday";
+                break;
+            case 3:
+                tuesday.add(show);
+                log = "tuesday";
+                break;
+            case 4:
+                wednesday.add(show);
+                log = "wednesday";
+                break;
+            case 5:
+                thursday.add(show);
+                log = "thursday";
+                break;
+            case 6:
+                friday.add(show);
+                log = "friday";
+                break;
+            case 7:
+                saturday.add(show);
+                log = "saturday";
+                break;
+        }
+        Log.v(TAG, show.getTitle() + " stored into " + log);
+    }
+
+    /**
+     * Shows or hides the loading indicator which covers the entire activity.
+     * @param isLoading true to show, false to hide.
+     */
+    private void showLoadingScreen(boolean isLoading) {
+        FrameLayout loadingScreen = (FrameLayout)findViewById(R.id.schedule_loading_framelayout);
+        if (isLoading) {
+            loadingScreen.setVisibility(View.VISIBLE);
+        } else {
+            loadingScreen.setVisibility(View.GONE);
+        }
+
+    }
+
+    /**
+     * Parses a Google Calendar JSONObject and builds a list of Shows, which are assigned the passed category value.
+     * @param calObj Google Calendar JSONObject to parse
+     * @param category category value as an int
+     */
+    private void parseShowData(JSONObject calObj, int category) {
+
+
+        /* When dayOfWeek != dayCache, we have changed weekdays, so we must change storage location in the list. Initial
+        value will match with Sunday shows */
+        int dayCache = 1;
+
+        /* dayList contains all of the shows for the current weekday. When weekday is changed, dayList is stored
+        into the master showList, and the list is wiped clean to be used again. */
+        ArrayList<Show> dayList = new ArrayList<Show>();
 
         // Map used to convert text weekday values to integers
         HashMap< String, Integer> weekdayToIntMap = new HashMap<String, Integer>();
@@ -76,18 +245,10 @@ public class KRUIScheduleActivity extends FragmentActivity implements TextListen
             weekdayToIntMap.put(weekdays[j], j+1);
         }
 
-        /* When dayOfWeek != dayCache, we have changed weekdays, so we must change storage location in the list. Initial
-           value will match with Sunday shows */
-        int dayCache = 1;
-        /* dayList contains all of the shows for the current weekday. When weekday is changed, dayList is stored
-           into the master showList, and the list is wiped clean to be used again. */
-        ArrayList<Show> dayList = new ArrayList<Show>();
-
         try {
-            JSONArray calendarArray = calendarObj.getJSONArray("items"); // "items" array stored here
+            JSONArray calendarArray = calObj.getJSONArray("items"); // "items" array stored here
 
             // For each JSON Object in the array, extract all necessary data
-            // TODO: Integrate music/news/sports/special. Currently music is auto selected (by passing hard coded values in the show constructor).
             for (int i=0; i<calendarArray.length(); i++) {
                 JSONObject o = calendarArray.getJSONObject(i);
                 JSONObject startObject = o.getJSONObject("start");
@@ -129,72 +290,26 @@ public class KRUIScheduleActivity extends FragmentActivity implements TextListen
                 // Construct a show object and write this event to the show list
                 Show show = new Show(calId, 1, title, startTime, endTime, startMinutes, endMinutes, link, description, dayOfWeekInt);
 
-                // Determine how to store this show
-                if (dayOfWeekInt == dayCache) {
-                    // If the weekday hasn't changed, store this in the existing cache
-                    Log.v(TAG, "Adding show (" + title + ") to show list.");
-                    dayList.add(show);
-                } else {
-                    Log.v(TAG, "Day of week change detected! New day of week is " + dayOfWeekInt);
-                    // If the weekday has changed, store the cache in the master list
-                    showList.add(dayList);
+                // Set this show object's category value to color it correctly in ScheduleFragment.
+                // Using the key in downloadShowData, the correct category is always the k+1th value.
+                show.setCategory(category);
 
-                    // Clear the cache list and add this show
-                    Log.v(TAG, "List has been cleared.");
-                    dayList = new ArrayList<Show>();
-                    Log.v(TAG, "Adding show (" + title + ") to show list.");
-                    dayList.add(show);
-
-                    // Then update dayCache's value so this will not be triggered until the NEXT weekday
-                    dayCache = dayOfWeekInt;
-                }
+                // Enqueue this show onto the Priority Queue
+                Log.v(TAG, "Adding " + show.getTitle() + " to the priority queue.");
+                Log.v(TAG, "Show category is: " + show.getCategory());
+                pq.add(show);
             }
 
-            Log.v(TAG, "Last event has been created. Adding final list. ");
-            showList.add(dayList);
+        } catch (NullPointerException e) {
+            Log.e(TAG, "No events were available to parse.");
 
         } catch (JSONException e) {
             Log.e(TAG, "Error parsing Programming Information from JSON. ");
             e.printStackTrace();
         }
 
-        // Hide loading screen
-        showLoadingScreen(false);
-
-        // Print all values of shows
-        //Log.v(TAG, "----------");
-        //for (int i=0; i<showList.size(); i++) {
-        //    ArrayList<Show> s = showList.get(i);
-        //    Log.v(TAG, "* Printing all shows with day of week value: " + (i+1));
-        //    for (int j=0; j<s.size(); j++) {
-        //        Show show = s.get(j);
-        //        Log.v(TAG, "Title: " + show.getTitle());
-        //    }
-        //    Log.v(TAG, "----------");
-        //}
-
-        // Fill date list
-        dateList = new ArrayList<String>();
-        cal.get(Calendar.DAY_OF_WEEK);
-        //dateList.add();
-
-        // Hook up pager and pagerAdapter and hide loading screen
-        pager = (ViewPager)findViewById(R.id.schedule_pager);
-        pagerAdapter = new SchedulePagerAdapter(getSupportFragmentManager());
-        pager.setAdapter(pagerAdapter);
-        showLoadingScreen(false);
-
     }
 
-    private void showLoadingScreen(boolean isLoading) {
-        FrameLayout loadingScreen = (FrameLayout)findViewById(R.id.schedule_loading_framelayout);
-        if (isLoading) {
-            loadingScreen.setVisibility(View.VISIBLE);
-        } else {
-            loadingScreen.setVisibility(View.GONE);
-        }
-
-    }
 
     /**
      * Reads text file object and returns it as a string.
@@ -224,42 +339,66 @@ public class KRUIScheduleActivity extends FragmentActivity implements TextListen
         return fileContent.toString();
     }
 
-    private class SchedulePagerAdapter extends FragmentPagerAdapter {
+private class SchedulePagerAdapter extends FragmentPagerAdapter {
 
-        public SchedulePagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int i) {
-            return new ScheduleFragment(showList.get(i));
-        }
-
-        @Override
-        public int getCount() {
-            return FRAGMENT_COUNT;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            String title = "";
-            switch(position) {
-                case 0: title = getString(R.string.sunday);
-                    break;
-                case 1: title = getString(R.string.monday);
-                    break;
-                case 2: title = getString(R.string.tuesday);
-                    break;
-                case 3: title = getString(R.string.wednesday);
-                    break;
-                case 4: title = getString(R.string.thursday);
-                    break;
-                case 5: title = getString(R.string.friday);
-                    break;
-                case 6: title = getString(R.string.saturday);
-                    break;
-            }
-            return title;
-        }
+    public SchedulePagerAdapter(FragmentManager fm) {
+        super(fm);
     }
+
+    @Override
+    public Fragment getItem(int i) {
+        ArrayList<Show> l = new ArrayList<Show>();
+        switch (i) {
+            case 0:
+                l = sunday;
+                break;
+            case 1:
+                l = monday;
+                break;
+            case 2:
+                l = tuesday;
+                break;
+            case 3:
+                l = wednesday;
+                break;
+            case 4:
+                l = thursday;
+                break;
+            case 5:
+                l = friday;
+                break;
+            case 6:
+                l = saturday;
+                break;
+        }
+        return new ScheduleFragment(l);
+    }
+
+    @Override
+    public int getCount() {
+        return FRAGMENT_COUNT;
+    }
+
+    @Override
+    public CharSequence getPageTitle(int position) {
+        String title = "";
+        switch(position) {
+            case 0: title = getString(R.string.sunday);
+                break;
+            case 1: title = getString(R.string.monday);
+                break;
+            case 2: title = getString(R.string.tuesday);
+                break;
+            case 3: title = getString(R.string.wednesday);
+                break;
+            case 4: title = getString(R.string.thursday);
+                break;
+            case 5: title = getString(R.string.friday);
+                break;
+            case 6: title = getString(R.string.saturday);
+                break;
+        }
+        return title;
+    }
+}
 }
