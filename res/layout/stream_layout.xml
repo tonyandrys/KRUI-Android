@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/light_gray"
+    android:background="@drawable/bg_japan_thin"
     tools:context=".StreamActivity" android:id="@+id/stream_fragment_container_relativelayout">
 
     <RelativeLayout
@@ -11,16 +11,53 @@
             android:layout_above="@+id/stream_progress_container_relativelayout"
             >
         <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:id="@+id/stream_album_art_container"
-                android:layout_alignParentBottom="false"
-                android:layout_centerHorizontal="true" android:layout_marginBottom="25dp" android:layout_marginTop="5dp"
-                android:visibility="invisible" android:layout_below="@+id/album_name_textview">
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" android:id="@+id/track_info_panel_relativelayout"
+                android:gravity="center_horizontal" android:background="@drawable/track_info_gradient">
+            <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Song"
+                    android:id="@+id/song_name_textview" android:gravity="center_horizontal" android:textSize="16sp"
+                    android:textStyle="bold" android:textColor="@color/white"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="-"
+                    android:id="@+id/divider" android:layout_below="@+id/song_name_textview"
+                    android:gravity="center_horizontal" android:layout_centerHorizontal="true"
+                    android:layout_marginRight="5dp" android:layout_marginLeft="5dp" android:textColor="@color/white"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Artist"
+                    android:id="@+id/artist_name_textview" android:layout_below="@+id/song_name_textview"
+                    android:layout_toLeftOf="@+id/divider" android:textColor="@color/white"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Album"
+                    android:id="@+id/album_name_textview" android:layout_toRightOf="@+id/divider"
+                    android:layout_below="@+id/song_name_textview" android:textColor="@color/white"
+                    />
+            <ProgressBar
+                    android:layout_width="fill_parent"
+                    android:layout_height="5dp"
+                    android:id="@+id/track_update_progressbar" style="@style/ProgressBar.Kruistyle"
+                    android:progress="0"
+                    android:layout_alignBaseline="@+id/album_name_textview" android:paddingTop="2dp"/>
+        </RelativeLayout>
+        <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" android:id="@+id/stream_album_art_container"
+                android:layout_centerHorizontal="true"
+                android:visibility="visible" android:layout_below="@+id/track_info_panel_relativelayout"
+                >
             <ImageView
-                    android:layout_width="300dp"
-                    android:layout_height="300dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:id="@+id/album_art_loading_pane"
-                    android:background="#C4C4C4" android:visibility="invisible"/>
+                    android:visibility="invisible"/>
             <ProgressBar
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -28,46 +65,20 @@
                     android:visibility="invisible"/>
             <ImageView
                 android:id="@+id/album_art_pane"
-                android:layout_height="300dp"
-                android:layout_width="300dp"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
                 android:src="@drawable/krui_background_logo"
                 android:contentDescription="@string/krui_logo_background_desc"
                 android:layout_centerHorizontal="true"
-                android:visibility="visible"/>
+                android:visibility="visible" android:scaleType="fitXY"/>
         </RelativeLayout>
-        <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/artist_name_textview"
-                android:textSize="18sp"
-                android:layout_below="@+id/song_name_textview" android:layout_centerHorizontal="true"
-                android:textAlignment="gravity" android:gravity="center_horizontal" android:layout_marginTop="2.5dp"/>
-        <TextView
-            android:id="@+id/album_name_textview"
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent"
-            android:textSize="18sp"
-            android:layout_below="@+id/artist_name_textview" android:layout_centerHorizontal="true"
-            android:gravity="center_horizontal" android:textAlignment="gravity" android:layout_marginTop="2.5dp"
-                />
-        <TextView
-            android:id="@+id/song_name_textview"
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent"
-            android:layout_centerHorizontal="true"
-            android:layout_alignParentTop="true"
-            android:textSize="20sp"
-            android:scrollHorizontally="true"
-            android:fadingEdge="horizontal"
-            android:singleLine="true" android:ellipsize="middle"
-            android:marqueeRepeatLimit="marquee_forever" android:gravity="center_horizontal"
-            android:textAlignment="gravity" android:layout_marginTop="10dp"/>
         <RelativeLayout
                 android:orientation="vertical"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:background="@color/light_gray" android:id="@+id/no_audio_playing_container_relativelayout"
-                android:gravity="center|center_horizontal" android:visibility="visible">
+                android:gravity="center|center_horizontal" android:visibility="invisible"
+                >
             <TextView
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
