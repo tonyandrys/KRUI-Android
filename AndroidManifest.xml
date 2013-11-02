@@ -37,5 +37,6 @@
         </activity>
         <activity android:name=".DJInfoActivity"/>
         <service android:name=".StreamService"/>
+        <receiver android:name=".ScreenReceiver"/>
     </application>
 </manifest>

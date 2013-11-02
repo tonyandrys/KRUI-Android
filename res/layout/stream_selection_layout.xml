@@ -9,38 +9,60 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/audio_selector_container_relativelayout"
             android:layout_below="@+id/welcome_container_relativelayout" android:layout_alignParentTop="false">
-        <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent">
+        <ScrollView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/scrollView">
             <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:background="@drawable/audio_selection_shape"
-                    android:layout_margin="5dp">
-                <ImageView
-                        android:layout_width="80dp"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/imageView" android:layout_column="0"
-                        android:src="@drawable/KRUI_logo_red" android:padding="5dp"/>
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/main_studio_copy"
-                        android:id="@+id/textView" android:layout_column="1" android:padding="5dp"
-                        android:textSize="10sp"/>
+                    android:orientation="vertical"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent">
+                <RelativeLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent" android:background="@drawable/audio_selection_shape"
+                        android:id="@+id/main_studio_stream_button" android:layout_margin="5dp">
+                    <ImageView
+                            android:layout_width="80dp"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/imageView" android:layout_column="0"
+                            android:src="@drawable/krui_logo_red" android:padding="5dp"
+                            android:layout_alignParentTop="true" android:layout_alignParentLeft="true"/>
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/main_studio_copy"
+                            android:id="@+id/textView" android:layout_column="1"
+                            android:textSize="15sp" android:layout_below="@+id/imageView"
+                            android:gravity="center_horizontal" android:paddingLeft="5dp" android:paddingTop="5dp"
+                            android:paddingRight="5dp" android:paddingBottom="10dp"/>
+                    <TextView
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/main_studio_title"
+                            android:id="@+id/textView3" android:layout_toRightOf="@+id/imageView"
+                            android:layout_marginTop="10dp" android:gravity="center_horizontal"
+                            android:textSize="30sp"/>
+                </RelativeLayout>
+                <RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent"
+                                android:background="@drawable/audio_selection_shape" android:id="@+id/the_lab_stream_button"
+                                android:layout_marginTop="20dp" android:layout_margin="5dp">
+                    <ImageView android:layout_width="80dp" android:layout_height="wrap_content"
+                               android:id="@+id/imageView2" android:layout_column="0"
+                               android:src="@drawable/thelab_logo_small" android:padding="5dp"
+                               android:layout_alignParentTop="true" android:layout_alignParentLeft="true"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                              android:text="@string/the_lab_copy" android:id="@+id/textView4"
+                              android:layout_column="1" android:textSize="15sp"
+                              android:layout_below="@+id/imageView2" android:gravity="center_horizontal"
+                              android:paddingLeft="5dp" android:paddingTop="5dp" android:paddingRight="5dp"
+                              android:paddingBottom="10dp"/>
+                    <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
+                              android:text="@string/the_lab_title" android:id="@+id/textView5"
+                              android:layout_toRightOf="@+id/imageView2" android:layout_marginTop="10dp"
+                              android:gravity="center_horizontal" android:textSize="30sp"/>
+                </RelativeLayout>
             </LinearLayout>
-            <LinearLayout android:orientation="horizontal" android:layout_width="wrap_content"
-                          android:layout_height="wrap_content" android:background="@drawable/audio_selection_shape"
-                          android:layout_margin="5dp" android:id="@+id/linearLayout">
-                <ImageView android:layout_width="80dp" android:layout_height="wrap_content"
-                           android:id="@+id/imageView1" android:layout_column="0" android:src="@drawable/thelab_logo_small"
-                           android:padding="5dp"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="match_parent"
-                          android:text="@string/the_lab_copy" android:id="@+id/textView1" android:layout_column="1"
-                          android:padding="5dp" android:textSize="10sp" android:gravity="center_vertical"/>
-            </LinearLayout>
-        </LinearLayout>
+        </ScrollView>
     </RelativeLayout>
     <RelativeLayout
             android:layout_width="fill_parent"
@@ -57,7 +79,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/confirm_welcome_message"
-                android:id="@+id/button" android:layout_below="@+id/textView2" android:layout_centerHorizontal="true"
+                android:id="@+id/hide_welcome_message_button" android:layout_below="@+id/textView2" android:layout_centerHorizontal="true"
                 android:textSize="15sp"/>
     </RelativeLayout>
 </RelativeLayout>

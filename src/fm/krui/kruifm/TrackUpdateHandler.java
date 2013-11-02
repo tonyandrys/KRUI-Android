@@ -69,6 +69,9 @@ public class TrackUpdateHandler extends AsyncTask<Void, Void, Integer> {
         if ((!trackInfo[0].equals(currentTrackInfo[0])) || (!trackInfo[1].equals(currentTrackInfo[1])) || (!trackInfo[2].equals(currentTrackInfo[2]))) {
             Log.v(TAG, "Song information has changed. UI will be updated.");
 
+            // UI UPDATE HERE
+            listener.broadcastMessage(StreamService.BROADCAST_COMMAND_UPDATE_PENDING);
+
             // If either the song, artist, or album name is different than the current song playing, we have downloaded a new track and we need to update the UI.
             // If album art update is requested, get the location of the album art and download it.
             if (updateAlbumArt) {

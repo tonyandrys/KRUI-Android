@@ -70,7 +70,7 @@ public class StreamContainer extends FragmentActivity {
         actionBar.setHomeButtonEnabled(true);
 
         // Instantiate the Streaming Fragment
-        Fragment fragment = new StreamFragment();
+        Fragment fragment = new StreamFragment(StreamFragment.MAIN_STUDIO);
         fragment.setHasOptionsMenu(true);
         fragment.setMenuVisibility(true);
         getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(STREAM_TAB)).commit();
@@ -112,7 +112,7 @@ public class StreamContainer extends FragmentActivity {
         // Set params based on opening tab
         switch (fragmentId) {
             case STREAM_TAB:
-                navigationMode = ActionBar.NAVIGATION_MODE_LIST;
+                //navigationMode = ActionBar.NAVIGATION_MODE_LIST;
                 break;
             case PLAYLIST_TAB:
                 title = getString(R.string.extended_playlist_title);
@@ -147,7 +147,7 @@ public class StreamContainer extends FragmentActivity {
     // Listen Fragment
     public void showStream(View view) {
         drawer.cancel();
-        Fragment fragment = new StreamFragment();
+        Fragment fragment = new StationSelectionFragment();
         fragment.setHasOptionsMenu(true); // Enable action bar menu modification from this fragment.
         fragment.setMenuVisibility(true);
         getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(STREAM_TAB)).commit();

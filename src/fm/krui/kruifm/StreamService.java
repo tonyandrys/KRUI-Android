@@ -12,7 +12,6 @@ import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.Timer;
@@ -49,6 +48,7 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
     public static final String BROADCAST_COMMAND_PLAY = "playStream";
     public static final String BROADCAST_COMMAND_PAUSE = "pauseStream";
     public static final String BROADCAST_COMMAND_STOP = "stopStream";
+    public static final String BROADCAST_COMMAND_UPDATE_PENDING = "updatePending";
     public static final String BROADCAST_COMMAND_UPDATE = "updateStream";
     public static final String BROADCAST_COMMAND_STATUS_MESSAGE = "statusMessage";
     public static final String BROADCAST_COMMAND_STATUS_HIDE = "hideStatus";
@@ -61,9 +61,12 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
     public static final String ACTION_PAUSE = "fm.krui.kruifm.PAUSE";
     public static final String ACTION_STOP = "fm.krui.kruifm.STOP";
     public static final String ACTION_CHANGE_URL = "fm.krui.kruifm.CHANGEURL";
+    public static final String ACTION_STOP_UPDATES = "fm.krui.kruifm.STOPUPDATES";
+    public static final String ACTION_START_UPDATES = "fm.krui.kruifm.STARTUPDATES";
+    public static final String ACTION_MANUAL_TRACK_UPDATE = "fm.krui.kruifm.MANUALUPDATE";
 
     // Default stream to play is the 89.7 128kb/s stream
-    private String streamUrl = "http://krui.student-services.uiowa.edu:8200";
+    private String streamUrl = "";
 
     // Timer members
     private Timer updateTimer;
@@ -78,7 +81,6 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
     private boolean isPaused;
 
     public StreamService() {
-
     }
 
     @Override
@@ -109,7 +111,6 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
         super.onDestroy();
 
         // Broadcast closing intent to update UI
-
         // Stop and release media player resources
         Log.v(TAG, "Audio service has received signal to shutdown. Stopping audio and freeing resources...");
         mp.stop();
@@ -155,6 +156,24 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
             } else {
                 Log.e(TAG, "ERROR: Change URL requested, but no URL was passed in intent!");
             }
+        }
+
+        // Intent fired to perform a track update regardless of the state of the update timer
+        else if (intentAction.equals(ACTION_MANUAL_TRACK_UPDATE)) {
+            Log.v(TAG, "Manual track update requested. Performing update.");
+            updateTrackInfo();
+        }
+
+        // If start updates command is received, Restart the update timer. This is received when the screen
+        // is turned on after it has been locked by the user or timed out.
+        else if (intentAction.equals(ACTION_START_UPDATES)) {
+            setUpdateTimer(true);
+        }
+
+        // If stop updates command is received, stop the update timer. Don't waste bandwidth and resources
+        // updating track info/album art that the user won't see.
+        else if (intentAction.equals(ACTION_STOP_UPDATES)) {
+            setUpdateTimer(false);
         }
     }
 
@@ -219,7 +238,7 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
      * Sends a local broadcast with passed BROADCAST_COMMAND.
      * @param broadcastCommand BROADCAST_COMMAND String constant.
      */
-    private void broadcastMessage(final String broadcastCommand) {
+    public void broadcastMessage(final String broadcastCommand) {
         Intent intent = new Intent(BROADCAST_MESSAGE);
         intent.putExtra(BROADCAST_KEY, broadcastCommand);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
@@ -279,7 +298,7 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
         }
 
         // Attach error handler to instance.
-        mp.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+        /*mp.setOnErrorListener(new MediaPlayer.OnErrorListener() {
 
             @Override
             public boolean onError(MediaPlayer arg0, int arg1, int arg2) {
@@ -288,11 +307,12 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
                 mp = buildAudioPlayer();
                 // FIXME: This should be a status bar message! Update this when that is fully implemented
                 Toast.makeText(getApplicationContext(), "Failed to load the stream. Please check your internet connection and try again.", Toast.LENGTH_LONG).show();
-                Log.e(TAG, "Error in playback. onError was called.");
+                Log.e(TAG, "Error in playback. onError is being called.");
+
                 return true;
             }
 
-        });
+        });*/
         return mp;
     }
 
@@ -383,6 +403,8 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
 
+        this.mp = buildAudioPlayer();
+
         // Log the error
         Log.e(TAG, "*** MediaPlayer has encountered a fatal error.");
         String errorType = "";
@@ -405,7 +427,7 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
         }
         Log.e(TAG, "*** Error Code: " + errorCode);
         // FIXME: UGLY. Clean this up.
-        updateStreamStatus("Error Type: " + errorType + " / Error Code: " + errorCode, false);
+        updateStreamStatus("Error! Type: " + errorType + " / Code: " + errorCode, false);
         isPrepared = false;
         return false;
     }
@@ -437,7 +459,7 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
 
         // Set static notification elements (title, icon, etc)
         notificationBuilder.setContentTitle(getString(R.string.notification_title));
-        notificationBuilder.setSmallIcon(R.drawable.play_icon_white);
+        notificationBuilder.setSmallIcon(R.drawable.ic_action_krui_logo_small);
 
         // PendingIntent is executed when user selects the notification.
         PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(getApplicationContext(), StreamContainer.class), PendingIntent.FLAG_UPDATE_CURRENT);
@@ -541,7 +563,6 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
         Log.v(TAG, "Stored artist: " + prefs.getString(PREFKEY_ARTIST, ""));
         Log.v(TAG, "Stored album: " + prefs.getString(PREFKEY_ALBUM, ""));
         return currentTrackInfo;
-
     }
 
     private void setCurrentTrackInfo(String trackName, String artistName, String albumName) {

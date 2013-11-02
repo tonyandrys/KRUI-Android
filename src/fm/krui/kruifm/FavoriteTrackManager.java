@@ -157,6 +157,58 @@ public class FavoriteTrackManager {
     }
 
     /**
+     * Compares an arbitrary track object to the last favorited track.
+     * @param track Track object to compare
+     * @return true if tracks match, false if not.
+     */
+    public boolean compareToLastFavoritedTrack(Track track) {
+        Track favTrack = getLatestTrackFromFavorites();
+
+        /* Tracks are identical if their name, artist, and album entries are identical. So,
+        * check the passed track's fields against the retrieved track's fields. This comparison
+        * can short circuit since all three fields must match to return true. */
+        if (!favTrack.getTitle().equals(track.getTitle())) {
+            Log.v(TAG, "Titles do not match!");
+            Log.v(TAG, "Last favorited title: " + favTrack.getTitle());
+            Log.v(TAG, "Track title: " + track.getTitle());
+            return false;
+        } else if (!favTrack.getArtist().equals(track.getArtist())) {
+            Log.v(TAG, "Artists do not match!");
+            Log.v(TAG, "Last favorited artist: " + favTrack.getArtist());
+            Log.v(TAG, "Track artist: " + track.getArtist());
+            return false;
+        } else if (!favTrack.getAlbum().equals(track.getAlbum())) {
+            Log.v(TAG, "Albums do not match!");
+            Log.v(TAG, "Last favorited album: " + favTrack.getAlbum());
+            Log.v(TAG, "Track title: " + track.getAlbum());
+            return false;
+        } else {
+            // All fields are identical if we make it this far, so return true.
+            return true;
+        }
+
+    }
+
+    /**
+     * Returns the last track that was favorited by the user.
+     * @return HashMap<String, String> Artist/Album/TrackName
+     */
+    public Track getLatestTrackFromFavorites() {
+        HashMap<String, String> lastTrack;
+        Track track = new Track();
+        try {
+            lastTrack = favoriteList.get(favoriteList.size()-1);
+            track.setTitle(lastTrack.get(KEY_TRACK));
+            track.setAlbum(lastTrack.get(KEY_ALBUM));
+            track.setArtist(lastTrack.get(KEY_ARTIST));
+        } catch (IndexOutOfBoundsException e) {
+            Log.e(TAG, "Could not retrieve the user's last favorited track! Do they have any?");
+            return null;
+        }
+        return track;
+    }
+
+    /**
      * Removes a specific track from the favorites list.
      * @param i index of track to remove
      */

@@ -1,6 +1,5 @@
 package fm.krui.kruifm;
 
-import android.app.ActionBar;
 import android.app.ProgressDialog;
 import android.content.*;
 import android.graphics.Bitmap;
@@ -18,13 +17,13 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class StreamFragment extends Fragment implements TrackUpdateListener {
+public class StreamFragment extends Fragment {
 
     private static String TAG = StreamFragment.class.getName();
 
     /* Constants */
-    final private int MAIN_STUDIO = 0;
-    final private int THE_LAB = 1;
+    final static int MAIN_STUDIO = 0;
+    final static int THE_LAB = 1;
 
     // HashMap Constants
     final private String KEY_ARTIST = "artist";
@@ -32,7 +31,8 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
     final private String KEY_ALBUM = "album";
 
     /* Class members */
-    private String streamUrl = "http://krui.student-services.uiowa.edu:8200"; // Default value is 128kb/s 89.7 stream.
+    private String streamUrl ="";
+    private int stationTag;
     private Timer updateTimer = new Timer();
     private TimerTask updateTimerTask;
     private PreferenceManager prefManager;
@@ -49,6 +49,14 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
 
     // Temporary
     private boolean trackIsFavorite = false;
+
+    /**
+     * Stream Fragments are constructed with an integer tag to determine which URL to stream.
+     * @param stationTag (0 => MAIN_STUDIO, 1 => LAB)
+     */
+    public StreamFragment(int stationTag) {
+        this.stationTag = stationTag;
+    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -94,6 +102,18 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
             }
         };
 
+        // Determine the URL we need to use to stream based on the station tag and quality preferences
+        streamUrl = getStreamUrl(stationTag);
+        Log.v(TAG, "streamUrl is now set to: " + streamUrl);
+
+        // Perform initial configuration of audio server
+        changeUrl(stationTag);
+
+        // Begin buffering the audio
+        startAudio((ImageView)getActivity().findViewById(R.id.play_audio_imageview));
+
+
+        /*
         // Build station selection spinner
         ArrayAdapter<CharSequence> stationAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.station_string_array, android.R.layout.simple_spinner_item);
         stationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -111,7 +131,7 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
 
         // Prepare ActionBar
         ActionBar actionBar = getActivity().getActionBar();
-        actionBar.setListNavigationCallbacks(stationAdapter, stationListener);
+        actionBar.setListNavigationCallbacks(stationAdapter, stationListener); */
 
         // Build play button listener
         final ImageView playButton = (ImageView)getActivity().findViewById(R.id.play_audio_imageview);
@@ -217,11 +237,11 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
     }
 
     /**
-     * Performs animation between control view and settings view.
+     * Performs animation between album art pane and settings view.
      */
     private void flipCard() {
-        View rootLayout = (View)getActivity().findViewById(R.id.stream_functions_container_relativelayout);
-        View cardFace = (View)getActivity().findViewById(R.id.player_controls_tablelayout);
+        View rootLayout = (View)getActivity().findViewById(R.id.stream_now_playing_container_relativelayout);
+        View cardFace = (View)getActivity().findViewById(R.id.album_art_pane);
         View cardBack = (View)getActivity().findViewById(R.id.player_settings_tablelayout);
 
         FlipAnimation flipAnimation = new FlipAnimation(cardFace, cardBack);
@@ -235,17 +255,15 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
 
     private void addTrackToFavorites() {
         String trackName = "";
-        String albumName = "";
-        String artistName = "";
+        String artistAlbumName = "";
         TextView trackNameTextView = (TextView)getActivity().findViewById(R.id.song_name_textview);
-        TextView albumNameTextView = (TextView)getActivity().findViewById(R.id.album_name_textview);
-        TextView artistNameTextView = (TextView)getActivity().findViewById(R.id.artist_name_textview);
+        TextView artistAlbumNameTextView = (TextView)getActivity().findViewById(R.id.artist_album_name_textview);
 
         // Extract text from their views
         try {
             trackName = trackNameTextView.getText().toString();
-            albumName = albumNameTextView.getText().toString();
-            artistName = artistNameTextView.getText().toString();
+            artistAlbumName = artistAlbumNameTextView.getText().toString();
+
         } catch (NullPointerException e) {
             Log.e(TAG, "Caught NullPointerException when extracting values from StreamFragment textviews!");
             e.printStackTrace();
@@ -254,8 +272,12 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
         // Build a Track from currently playing track.
         Track track = new Track();
         track.setTitle(trackName);
-        track.setAlbum(albumName);
-        track.setArtist(artistName);
+
+        // Separate Artist/Album Name
+        String[] arr =artistAlbumName.split("-");
+
+        track.setAlbum(arr[1]);
+        track.setArtist(arr[0]);
 
         // Add this track to favorites
         favTrackManager.addTrackToFavorites(track);
@@ -270,20 +292,62 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Initialize screen lock/wake receiver
+        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        BroadcastReceiver screenReceiver = new ScreenReceiver();
+
+        // Attach it to this activity
+        getActivity().getApplicationContext().registerReceiver(screenReceiver, filter);
+
+    }
+
+    @Override
     public void onResume() {
+
+        if (!ScreenReceiver.wasScreenOn) {
+            // NOTE: this.onResume() is called BEFORE ScreenReceiver.onReceive()
+            // When onResume is called due to a screen state change, perform a track update to ensure all info is up to date.
+            Intent intent = new Intent(getActivity(), StreamService.class);
+            intent.setAction(StreamService.ACTION_START_UPDATES);
+            getActivity().startService(intent);
+            Log.v(TAG, "Track updates resumed.");
+
+        } else {
+            // When onResume is called when the screen is NOT being unlocked.
+        }
+
         super.onResume();
+
+        Log.v(TAG, "StreamFragment onResume called!");
 
         // Retrieve favorites list from memory
         favTrackManager.loadFavoriteTracks();
 
+        // Restore UI state
+        restoreFavoriteState();
+
         // Register broadcast receiver to receive updates
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(broadcastReceiver, new IntentFilter(StreamService.BROADCAST_MESSAGE));
-
     }
 
     @Override
     public void onPause() {
         super.onPause();
+
+        // When the screen is about to turn off, handle state changes
+        if (ScreenReceiver.wasScreenOn) {
+            // NOTE: this.onPause() is called BEFORE ScreenReceiver.onReceive()
+            // If onPause is called by the system due to a screen state change
+            Log.i(TAG, "Screen is about to turn off! Stop track updates!");
+            Intent intent = new Intent();
+
+        } else {
+            // If onPause is called when the screen state has NOT changed
+        }
 
         // Store favoriteMap into memory
         Log.v(TAG, "Attempting to save favorite tracks...");
@@ -336,6 +400,10 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
                 playButton.setImageResource(R.drawable.play_icon_white);
             }
 
+            else if (broadcastCommand.equals(StreamService.BROADCAST_COMMAND_UPDATE_PENDING)) {
+                setLoadingIndicator(true);
+            }
+
             // If track update command is received, retrieve playing track information and apply it to UI.
             else if (broadcastCommand.equals(StreamService.BROADCAST_COMMAND_UPDATE)) {
                 // Update UI with new information
@@ -370,10 +438,10 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
 
     }
 
-    protected void changeUrl(int spinnerPosition) {
+    protected void changeUrl(int stationTag) {
         // URL depends on spinner position!
         // This turned out to be kind of cool, but this could cause problems if this order ever changes!
-        streamUrl = getStreamUrl(spinnerPosition);
+        streamUrl = getStreamUrl(stationTag);
 
         Log.v(TAG, "Requesting audio service to change url to " + streamUrl);
         Intent intent = new Intent(getActivity(), StreamService.class);
@@ -396,27 +464,30 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
 
         // Based on station passed, change the URL and display a notice to the user.
         prefManager = new PreferenceManager(getActivity());
+        String mainMessage = "";
         switch (station) {
             case MAIN_STUDIO:
                 if (prefManager.getStreamQuality() == prefManager.HIGH_QUALITY) {
                     URL += mainHighPort;
+                    mainMessage = getString(R.string.changing_high_quality);
                 } else {
                     URL += mainLowPort;
+                    mainMessage = getString(R.string.changing_low_quality);
                 }
-                String mainMessage = getString(R.string.changing_897);
                 showStreamStatusBar(mainMessage, false);
                 break;
 
             case THE_LAB:
                 if (prefManager.getStreamQuality() == prefManager.HIGH_QUALITY) {
                     URL += labHighPort;
+                    mainMessage = getString(R.string.changing_high_quality);
                 } else {
                     URL += labLowPort;
+                    mainMessage = getString(R.string.changing_low_quality);
                 }
-                String labMessage = getString(R.string.changing_lab);
-                showStreamStatusBar(labMessage, false);
                 break;
         }
+        showStreamStatusBar(mainMessage, false);
         return URL;
     }
 
@@ -471,20 +542,16 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
      */
     public void updateTrackInfo() {
         TextView songNameTextView = (TextView)getActivity().findViewById(R.id.song_name_textview);
-        TextView artistTextView = (TextView)getActivity().findViewById(R.id.artist_name_textview);
-        TextView albumNameTextView = (TextView)getActivity().findViewById(R.id.album_name_textview);
+        TextView artistAlbumTextView = (TextView)getActivity().findViewById(R.id.artist_album_name_textview);
         ImageView albumArtImageView = (ImageView)getActivity().findViewById(R.id.album_art_pane);
-
-        // Show loading indicator
-        setLoadingIndicator(true);
 
         // Get current track information and write it to textviews
         String trackName = trackPrefs.getString(StreamService.PREFKEY_TRACK, "");
         String artistName = trackPrefs.getString(StreamService.PREFKEY_ARTIST, "");
         String albumName = trackPrefs.getString(StreamService.PREFKEY_ALBUM, "");
         songNameTextView.setText(trackName);
-        artistTextView.setText(artistName);
-        albumNameTextView.setText(albumName);
+        artistAlbumTextView.setText(artistName + " - " + albumName);
+
 
         // Get album art if it has been saved
         Bitmap bitmap = BitmapFactory.decodeFile(getActivity().getFilesDir() + "/" + TrackUpdateHandler.ALBUM_ART_FILENAME);
@@ -497,6 +564,12 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
             Log.w(TAG, "Album art could not be decoded from SharedPreferences.");
         }
 
+        // Since a new track is now on the screen, reset the status of the favorite button so the new track is addable.
+        final ImageView favoriteButton = (ImageView)getActivity().findViewById(R.id.stream_favorite_imageview);
+        trackIsFavorite = false;
+        favoriteButton.setImageResource(R.drawable.star_unfilled_white);
+        Log.v(TAG, "New track has been updated. Favorite status has been reset.");
+
         // Hide the loading indicator
         setLoadingIndicator(false);
     }
@@ -506,6 +579,8 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
      * @param showLoadingIndicator True to enable, false to disable.
      */
     private void setLoadingIndicator(final boolean showLoadingIndicator) {
+        Log.v(TAG, "setLoadingIndicator called!");
+        Log.v(TAG, "Called with " + showLoadingIndicator + " parameter.");
         // Instantiate views
         ProgressBar progressBar = (ProgressBar)getActivity().findViewById(R.id.album_art_progressbar);
         ImageView albumArtPaneImageView = (ImageView)getActivity().findViewById(R.id.album_art_pane);
@@ -525,15 +600,16 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
     }
 
     /**
-     * Called whenever a new track is displayed on the screen.
+     * Returns the current track information as a Track object
+     * @return
      */
-    @Override
-    public void onTrackUpdate() {
-        // Since a new track is now on the screen, reset the status of the favorite button so the new track is addable.
-        final ImageView favoriteButton = (ImageView)getActivity().findViewById(R.id.stream_favorite_imageview);
-        trackIsFavorite = false;
-        favoriteButton.setImageResource(R.drawable.star_unfilled_white);
-        Log.v(TAG, "New track has been updated. Favorite status has been reset.");
+    private Track getCurrentTrack() {
+        Track track = new Track();
+        SharedPreferences prefs = getActivity().getApplicationContext().getSharedPreferences(StreamService.PREFS_NAME, 0);
+        track.setTitle(prefs.getString(StreamService.PREFKEY_TRACK, ""));
+        track.setArtist(prefs.getString(StreamService.PREFKEY_ARTIST, ""));
+        track.setAlbum(prefs.getString(StreamService.PREFKEY_ALBUM, ""));
+        return track;
     }
 
     /**
@@ -614,6 +690,31 @@ public class StreamFragment extends Fragment implements TrackUpdateListener {
         });
         statusContainer.startAnimation(animOut);
 
+    }
+
+    /**
+     * Restores favorites state when fragment is resumed. If a track is playing and was favorited by the user before
+     * leaving the fragment, we need to restore this state to the UI to avoid misbehavior.
+     */
+    private void restoreFavoriteState() {
+        Log.v(TAG, "Trying to restore favorites state...");
+
+        // Check if the current track was is in the favorites list
+        Track currentTrack = getCurrentTrack();
+        Log.v(TAG, "Checking if this track is the same as the last favorited track...");
+        boolean isFavorite = favTrackManager.compareToLastFavoritedTrack(currentTrack);
+
+        ImageView favoriteButton = (ImageView)getActivity().findViewById(R.id.stream_favorite_imageview);
+        Log.v(TAG, "Trying to restore favorites state...");
+        if (isFavorite) {
+            Log.v(TAG, "Current track is identical to the last favorited track! Changing boolean and updating state.");
+            trackIsFavorite = true;
+            favoriteButton.setImageResource(R.drawable.star_filled_white);
+        } else {
+            Log.v(TAG, "Current track is NOT identical to the last favorited track! Refreshing UI.");
+            trackIsFavorite = false;
+            favoriteButton.setImageResource(R.drawable.star_unfilled_white);
+        }
     }
 
 }

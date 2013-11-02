@@ -17,35 +17,15 @@
             <TextView
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:text="Song"
                     android:id="@+id/song_name_textview" android:gravity="center_horizontal" android:textSize="16sp"
-                    android:textStyle="bold" android:textColor="@color/white"/>
+                    android:textStyle="bold" android:textColor="@color/white" android:singleLine="true"/>
             <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="-"
-                    android:id="@+id/divider" android:layout_below="@+id/song_name_textview"
-                    android:gravity="center_horizontal" android:layout_centerHorizontal="true"
-                    android:layout_marginRight="5dp" android:layout_marginLeft="5dp" android:textColor="@color/white"/>
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Artist"
-                    android:id="@+id/artist_name_textview" android:layout_below="@+id/song_name_textview"
-                    android:layout_toLeftOf="@+id/divider" android:textColor="@color/white"/>
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Album"
-                    android:id="@+id/album_name_textview" android:layout_toRightOf="@+id/divider"
-                    android:layout_below="@+id/song_name_textview" android:textColor="@color/white"
-                    />
-            <ProgressBar
                     android:layout_width="fill_parent"
-                    android:layout_height="5dp"
-                    android:id="@+id/track_update_progressbar" style="@style/ProgressBar.Kruistyle"
-                    android:progress="0"
-                    android:layout_alignBaseline="@+id/album_name_textview" android:paddingTop="2dp"/>
+                    android:layout_height="wrap_content"
+                    android:id="@+id/artist_album_name_textview" android:layout_below="@+id/song_name_textview"
+                    android:layout_toLeftOf="@+id/divider" android:textColor="@color/white" android:textSize="15sp"
+                    android:gravity="center" android:singleLine="true" android:ellipsize="marquee"
+                    android:marqueeRepeatLimit="marquee_forever" android:textIsSelectable="true"/>
         </RelativeLayout>
         <RelativeLayout
                 android:layout_width="fill_parent"
@@ -54,16 +34,6 @@
                 android:visibility="visible" android:layout_below="@+id/track_info_panel_relativelayout"
                 >
             <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/album_art_loading_pane"
-                    android:visibility="invisible"/>
-            <ProgressBar
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/album_art_progressbar" android:layout_centerInParent="true"
-                    android:visibility="invisible"/>
-            <ImageView
                 android:id="@+id/album_art_pane"
                 android:layout_height="match_parent"
                 android:layout_width="match_parent"
@@ -71,6 +41,16 @@
                 android:contentDescription="@string/krui_logo_background_desc"
                 android:layout_centerHorizontal="true"
                 android:visibility="visible" android:scaleType="fitXY"/>
+            <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/album_art_loading_pane"
+                    android:visibility="invisible" android:src="@color/low_alpha_dark_gray"/>
+            <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/album_art_progressbar" android:layout_centerInParent="true"
+                    android:visibility="invisible" style="@drawable/custom_progress_bar"/>
         </RelativeLayout>
         <RelativeLayout
                 android:orientation="vertical"
@@ -90,6 +70,61 @@
                     android:id="@+id/no_audio_subtext_textview" android:layout_below="@+id/no_audio_text_textview"
                     android:text="@string/no_audio_playing_sub" android:gravity="center" android:layout_marginTop="50dp"/>
         </RelativeLayout>
+        <TableLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" android:id="@+id/player_settings_tablelayout"
+                android:background="@drawable/stream_control_gradient" android:gravity="center_vertical|center_horizontal"
+                android:visibility="invisible" android:stretchColumns="*"
+                android:layout_alignBottom="@+id/stream_album_art_container">
+            <TableRow
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content" android:layout_gravity="center_horizontal"
+                    android:gravity="center" android:layout_marginBottom="10dp" android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp">
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/high_quality_stream"
+                        android:id="@+id/textView" android:layout_column="0" android:textColor="@color/white"
+                        android:layout_marginRight="10dp" android:textSize="15sp" android:layout_marginLeft="10dp"
+                        />
+                <Switch
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/stream_quality_switch" android:layout_column="1" android:checked="true"
+                        android:layout_marginLeft="5dp" android:layout_marginRight="10dp"
+                        />
+            </TableRow>
+            <TableRow
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:gravity="center"
+                    android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
+                    android:layout_marginBottom="10dp" android:layout_marginTop="10dp">
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/download_album_art"
+                        android:id="@+id/textView1" android:layout_column="0" android:textColor="@color/white"
+                        android:layout_marginRight="10dp" android:textSize="15sp" android:layout_marginLeft="10dp"
+                        />
+                <Switch
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/stream_album_art_switch" android:layout_column="1" android:checked="true"
+                        android:layout_marginLeft="5dp" android:layout_marginRight="10dp"/>
+            </TableRow>
+            <TableRow
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content" android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp" android:layout_marginTop="10dp">
+                <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/save"
+                        android:id="@+id/set_stream_settings_button" android:layout_column="0"
+                        android:layout_span="2"/>
+            </TableRow>
+        </TableLayout>
     </RelativeLayout>
 
 
@@ -156,58 +191,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="48dp"
                         android:id="@+id/stream_settings_imageview" android:layout_column="2" android:src="@drawable/settings_icon"/>
-            </TableRow>
-        </TableLayout>
-        <TableLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" android:id="@+id/player_settings_tablelayout"
-                android:layout_alignTop="@+id/player_controls_tablelayout"
-                android:background="@drawable/stream_control_gradient" android:gravity="center_vertical|center_horizontal"
-                android:visibility="gone" android:stretchColumns="*">
-            <TableRow
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content" android:layout_gravity="center_horizontal"
-                    android:gravity="center" android:layout_marginBottom="10dp" android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp">
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/high_quality_stream"
-                        android:id="@+id/textView" android:layout_column="0" android:textColor="@color/white"
-                        android:layout_marginRight="10dp" android:textSize="20sp" android:layout_marginLeft="10dp"/>
-                <Switch
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/stream_quality_switch" android:layout_column="1" android:checked="true"
-                        android:layout_marginLeft="5dp" android:layout_marginRight="10dp"/>
-            </TableRow>
-            <TableRow
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:gravity="center"
-                    android:layout_marginBottom="10dp" android:layout_marginLeft="10dp" android:layout_marginRight="10dp">
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/download_album_art"
-                        android:id="@+id/textView1" android:layout_column="0" android:textColor="@color/white"
-                        android:layout_marginRight="10dp" android:textSize="20sp" android:layout_marginLeft="10dp"
-                        />
-                <Switch
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/stream_album_art_switch" android:layout_column="1" android:checked="true"
-                        android:layout_marginLeft="5dp" android:layout_marginRight="10dp"/>
-            </TableRow>
-            <TableRow
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content" android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp">
-                <Button
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/done"
-                        android:id="@+id/set_stream_settings_button" android:layout_column="0"
-                        android:layout_span="2"/>
             </TableRow>
         </TableLayout>
     </RelativeLayout>

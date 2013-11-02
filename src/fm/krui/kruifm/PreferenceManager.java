@@ -27,6 +27,9 @@ public class PreferenceManager {
     // Album Art Download Preferences
     public final String DOWNLOAD_ALBUM_ART = "dlAlbumArt";
 
+    // Welcome Message Preference
+    public final String WELCOME_MESSAGE = "welcomeMessage";
+
     SharedPreferences prefs;
     Context context;
 
@@ -40,6 +43,12 @@ public class PreferenceManager {
     public void setStreamQuality(int quality) {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putInt(STREAM_QUALITY, quality);
+        editor.commit();
+    }
+
+    public void setWelcomePreference(boolean showWelcomeMessage) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(WELCOME_MESSAGE, showWelcomeMessage);
         editor.commit();
     }
 
@@ -57,6 +66,10 @@ public class PreferenceManager {
     public boolean getAlbumArtDownloadPreference() {
         // Download album art by default unless turned off by user.
         return prefs.getBoolean(DOWNLOAD_ALBUM_ART, true);
+    }
+
+    public boolean getWelcomePreference() {
+        return prefs.getBoolean(WELCOME_MESSAGE, true);
     }
 
 }

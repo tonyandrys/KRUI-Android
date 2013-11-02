@@ -9,4 +9,5 @@ package fm.krui.kruifm;
  */
 public interface TrackUpdateListener {
     void onTrackUpdate();
+    void broadcastMessage(String msg);
 }
