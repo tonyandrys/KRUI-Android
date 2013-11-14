@@ -4,12 +4,10 @@ import android.app.ActionBar;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.*;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import org.json.JSONArray;
@@ -61,6 +59,17 @@ public class KRUIScheduleActivity extends FragmentActivity implements TextListen
     private JSONObject calendarObj;
     private GregorianCalendar cal;
     private ArrayList<String> dateList;
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+        return true;
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -131,7 +131,13 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
     private void handleIntent(Intent intent) {
 
         // Get intent action
-        String intentAction = intent.getAction();
+        String intentAction = "";
+        try {
+            intentAction = intent.getAction();
+        } catch (NullPointerException e) {
+            Log.e(TAG, "No intent action found! Can't do anything with this intent.");
+            return;
+        }
 
         // If play command is received, resume or prepare/play audio.
         if (intentAction.equals(ACTION_PLAY)) {

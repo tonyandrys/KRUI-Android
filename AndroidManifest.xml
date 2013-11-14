@@ -27,7 +27,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="fm.krui.kruifm.KRUIScheduleActivity" >  
+            android:name="fm.krui.kruifm.KRUIScheduleActivity"
+            android:parentActivityName="fm.krui.kruifm.StreamContainer" >
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="fm.krui.kruifm.StreamContainer" />
         </activity>
         <activity
             android:name="fm.krui.kruifm.ShowDetailActivity" >
@@ -35,7 +40,20 @@
         <activity
             android:name="fm.krui.kruifm.ArticleViewActivity" >
         </activity>
-        <activity android:name=".DJInfoActivity"/>
+        <activity android:name="fm.krui.kruifm.DJInfoActivity"
+                  android:parentActivityName="fm.krui.kruifm.StreamContainer" >
+        <!-- Parent activity meta-data to support 4.0 and lower -->
+        <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="fm.krui.kruifm.StreamContainer" />
+        </activity>
+        <activity android:name="fm.krui.kruifm.StreamActivity"
+                  android:parentActivityName="fm.krui.kruifm.StreamContainer" >
+                  <!-- Parent activity meta-data to support 4.0 and lower -->
+                  <meta-data
+                        android:name="android.support.PARENT_ACTIVITY"
+                        android:value="fm.krui.kruifm.StreamContainer" />
+        </activity>
         <service android:name=".StreamService"/>
         <receiver android:name=".ScreenReceiver"/>
     </application>

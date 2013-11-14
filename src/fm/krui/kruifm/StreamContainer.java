@@ -29,10 +29,11 @@ public class StreamContainer extends FragmentActivity {
     final String sportsURL = "http://krui.fm/category/sports/?json=1";
 
     Drawer drawer;
-    Fragment currentFragment;
+    public static Fragment currentFragment;
 
     // Fragment reference constants
     private final int STREAM_TAB = 0;
+    private final int STATION_SELECT_TAB = 1;
     private final int PLAYLIST_TAB = 1;
     private final int DJ_TAB = 2;
     private final int FAVORITE_TRACKS_TAB = 3;
@@ -69,13 +70,11 @@ public class StreamContainer extends FragmentActivity {
         ActionBar actionBar = getActionBar();
         actionBar.setHomeButtonEnabled(true);
 
-        // Instantiate the Streaming Fragment
-        Fragment fragment = new StreamFragment(StreamFragment.MAIN_STUDIO);
-        fragment.setHasOptionsMenu(true);
-        fragment.setMenuVisibility(true);
-        getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(STREAM_TAB)).commit();
-        applyActionBarParameters(STREAM_TAB);
-        currentFragment = (StreamFragment)getSupportFragmentManager().findFragmentById(STREAM_TAB);
+        // Instantiate the Station Selection Fragment
+        Fragment fragment = new StationSelectionFragment();
+        getSupportFragmentManager().beginTransaction().replace(R.id.stream_fragment_container, fragment, Integer.toString(STATION_SELECT_TAB)).commit();
+        applyActionBarParameters(STATION_SELECT_TAB);
+        currentFragment = (StationSelectionFragment)getSupportFragmentManager().findFragmentById(STATION_SELECT_TAB);
     }
 
     @Override

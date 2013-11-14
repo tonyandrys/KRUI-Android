@@ -5,8 +5,8 @@ import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.NavUtils;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -36,17 +36,14 @@ public class DJInfoActivity extends FragmentActivity implements ActionBar.TabLis
     protected int TAB_STATE = 0;
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        // getMenuInflater().inflate(R.menu.dj_info_menu, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+        }
         return true;
     }
+
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

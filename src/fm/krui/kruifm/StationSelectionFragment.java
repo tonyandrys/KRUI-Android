@@ -1,5 +1,6 @@
 package fm.krui.kruifm;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -56,6 +57,10 @@ public class StationSelectionFragment extends Fragment {
         mainStudio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Start streaming 89.7
+                Intent intent = new Intent(getActivity(), StreamActivity.class);
+                intent.putExtra(StreamActivity.KEY_STATION_TAG, StreamActivity.MAIN_STUDIO);
+                startActivity(intent);
             }
         });
 
@@ -63,6 +68,10 @@ public class StationSelectionFragment extends Fragment {
         labButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Start streaming The Lab
+                Intent intent = new Intent(getActivity(), StreamActivity.class);
+                intent.putExtra(StreamActivity.KEY_STATION_TAG, StreamActivity.THE_LAB);
+                startActivity(intent);
             }
         });
 
