@@ -31,6 +31,7 @@ import java.util.TimerTask;
 public class StreamService extends Service implements MediaPlayer.OnErrorListener, TrackUpdateListener {
 
     final private String TAG = StreamService.class.getName();
+    public static boolean isRunning;
 
     final int NOTIFICATION_ID = 1492; // in 1492 Columbus sailed the ocean blue.
     final private int MAX_VOLUME = 100;
@@ -90,6 +91,9 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
         // Initialize SharedPrefs file used to cache track info
         prefs = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
 
+        // Set isRunning to true so we don't start multiple StreamServices from StreamFragment
+        isRunning = true;
+
         // Set initial parameters and build audio player
         this.isPaused = false;
         this.isPrepared = false;
@@ -110,6 +114,11 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
     public void onDestroy() {
         super.onDestroy();
 
+        // Set isRunning to false
+        isRunning = false;
+
+        stopForeground(true);
+
         // Broadcast closing intent to update UI
         // Stop and release media player resources
         Log.v(TAG, "Audio service has received signal to shutdown. Stopping audio and freeing resources...");
@@ -117,8 +126,6 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
         mp.release();
         isPaused = false;
         isPrepared = false;
-        Log.v(TAG, "Resources freed.");
-
     }
 
     private void handleIntent(Intent intent) {
@@ -131,6 +138,7 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
             if (isPaused && isPrepared) {
                 resumeAudio();
             } else {
+                Log.v(TAG, "ACTION_PLAY received, but player is not prepared. Preparing now...");
                 streamUrl = intent.getStringExtra(INTENT_STREAM_URL);
                 prepareAudio();
             }

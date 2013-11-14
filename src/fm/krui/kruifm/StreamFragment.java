@@ -112,27 +112,6 @@ public class StreamFragment extends Fragment {
         // Begin buffering the audio
         startAudio((ImageView)getActivity().findViewById(R.id.play_audio_imageview));
 
-
-        /*
-        // Build station selection spinner
-        ArrayAdapter<CharSequence> stationAdapter = ArrayAdapter.createFromResource(getActivity(), R.array.station_string_array, android.R.layout.simple_spinner_item);
-        stationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        // Build station selection listener
-        ActionBar.OnNavigationListener stationListener = new ActionBar.OnNavigationListener() {
-
-            @Override
-            public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-                stationSpinnerPosition = itemPosition;
-                changeUrl(itemPosition);
-                return false;
-            }
-        };
-
-        // Prepare ActionBar
-        ActionBar actionBar = getActivity().getActionBar();
-        actionBar.setListNavigationCallbacks(stationAdapter, stationListener); */
-
         // Build play button listener
         final ImageView playButton = (ImageView)getActivity().findViewById(R.id.play_audio_imageview);
         playButton.setOnClickListener(new View.OnClickListener() {
@@ -493,17 +472,21 @@ public class StreamFragment extends Fragment {
 
     public void pauseAudio(ImageView playButton) {
 
-        // Request service to pause audio
-        Intent intent = new Intent(getActivity(), StreamService.class);
-        intent.setAction(StreamService.ACTION_PAUSE);
-        getActivity().startService(intent);
         isPlaying = false;
+
+        // Kill the audio service
+        Intent stopIntent = new Intent(getActivity(), StreamService.class);
+        getActivity().stopService(stopIntent);
+        Log.v(TAG, "Audio service stopped!");
 
         // Change image of button to play icon.
         playButton.setImageResource(R.drawable.play_icon_white);
     }
 
     public void startAudio(ImageView playButton) {
+
+        // FIXME: WHY WHY WHY do I have to call changeUrl BEFORE I can start the audio? The URL is stored in StreamService, right? I don't FUCKING UNDERSTAND THIS
+        changeUrl(stationTag);
 
         // Request service to start audio
         Intent intent = new Intent(getActivity(), StreamService.class);

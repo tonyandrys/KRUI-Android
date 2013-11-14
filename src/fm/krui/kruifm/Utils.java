@@ -105,7 +105,7 @@ public class Utils {
      * Checks for a valid network connection on any active interface.
      * @param activity Calling activity (to access CONNECTIVITY_SERVICE).
      * @return true if a valid connection is found, false if no usable connection found.
-     * NOTE: Thanks to a user on StackOverflow for this one-- when I find your name again I'll give you credit.
+     * NOTE: Thanks to a user on StackOverflow for this one. When I find your name again I'll give you credit.
      */
     public static boolean checkForNetworkConnection(Activity activity) {
         ConnectivityManager cm = (ConnectivityManager)activity.getSystemService(Context.CONNECTIVITY_SERVICE);
