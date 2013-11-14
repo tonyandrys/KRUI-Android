@@ -9,6 +9,8 @@ package fm.krui.kruifm;
  */
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import java.io.*;
@@ -23,7 +25,8 @@ public class FavoriteTrackManager {
     final private String TAG = FavoriteTrackManager.class.getName();
     final private String FAVORITE_TRACKS_FILENAME = "krui-favorite-track-arraylist";
 
-    // HashMap keys
+    // Constants
+    final static public String KEY_FAVORITE_FLAG = "favFlag";
     final private String KEY_ARTIST = "artist";
     final private String KEY_TRACK = "name";
     final private String KEY_ALBUM = "album";
@@ -222,6 +225,27 @@ public class FavoriteTrackManager {
 
     public ArrayList<HashMap<String,String>> getFavoriteList() {
         return favoriteList;
+    }
+
+    /**
+     * Reads the value of the favorite flag.
+     * @return true if flag is set, false if not
+     */
+    public static boolean isFavoriteFlagSet(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(StreamService.PREFS_NAME, 0);
+        return prefs.getBoolean(KEY_FAVORITE_FLAG, false);
+    }
+
+    /**
+     * Sets the value of the favorite flag.
+     * @param context
+     * @param setFavoriteFlag true to set, false to unset
+     */
+    public static void setFavoriteFlag(Context context, boolean setFavoriteFlag) {
+        SharedPreferences prefs = context.getSharedPreferences(StreamService.PREFS_NAME, 0);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(KEY_FAVORITE_FLAG, setFavoriteFlag);
+        editor.commit();
     }
 
 }

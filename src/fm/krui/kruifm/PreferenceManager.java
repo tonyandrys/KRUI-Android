@@ -12,7 +12,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 /**
- * All user preferences can be set or retrieved through this class.
+ * All preferences can be set or retrieved through this class.
  */
 public class PreferenceManager {
 
@@ -29,6 +29,9 @@ public class PreferenceManager {
 
     // Welcome Message Preference
     public final String WELCOME_MESSAGE = "welcomeMessage";
+
+    // Player State Preference
+    public final String IS_PLAYING = "isPlaying";
 
     SharedPreferences prefs;
     Context context;
@@ -71,5 +74,17 @@ public class PreferenceManager {
     public boolean getWelcomePreference() {
         return prefs.getBoolean(WELCOME_MESSAGE, true);
     }
+
+    public boolean getPlayerState() {
+        return prefs.getBoolean(IS_PLAYING, false);
+    }
+
+    public void setPlayerState(boolean playerState) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(IS_PLAYING, playerState);
+        editor.commit();
+    }
+
+
 
 }

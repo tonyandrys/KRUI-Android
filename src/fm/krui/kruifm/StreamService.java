@@ -485,22 +485,6 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
             notificationBuilder.setContentText(getString(R.string.notification_subtitle));
         }
 
-        // If audio is playing, add action to pause audio
-        if (isPlaying) {
-            Intent pauseIntent = new Intent(this, StreamService.class);
-            pauseIntent.setAction(ACTION_PAUSE);
-            actionPI = PendingIntent.getService(getApplicationContext(), 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            notificationBuilder.addAction(R.drawable.pause_icon_white, getString(R.string.pause_audio), actionPI);
-        }
-
-        // If audio is NOT playing, add action to resume audio.
-        else {
-            Intent playIntent = new Intent(this, StreamService.class);
-            playIntent.setAction(ACTION_PLAY);
-            actionPI = PendingIntent.getService(getApplicationContext(), 0, playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            notificationBuilder.addAction(R.drawable.play_icon_white, getString(R.string.play_audio), actionPI);
-        }
-
         // Regardless of state, add a stop button to allow the user to stop the streaming service.
         Intent stopIntent = new Intent(this, StreamService.class);
         stopIntent.setAction(ACTION_STOP);
@@ -585,7 +569,8 @@ public class StreamService extends Service implements MediaPlayer.OnErrorListene
         editor.putString(PREFKEY_ARTIST, artistName);
         editor.putString(PREFKEY_ALBUM, albumName);
         editor.commit();
-        Log.v(TAG, "Stored current track info into SharedPreferences.");
+        FavoriteTrackManager.setFavoriteFlag(this, false);
+        Log.v(TAG, "Stored current track info into SharedPreferences. Reset favorite flag.");
     }
 
     private void updateTrackInfo() {

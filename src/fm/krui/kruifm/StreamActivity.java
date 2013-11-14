@@ -79,16 +79,16 @@ public class StreamActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.stream_layout);
 
+        // Instantiate class members
+        prefManager = new PreferenceManager(this);
+        favTrackManager = new FavoriteTrackManager(this);
+
         stationTag = getIntent().getIntExtra(KEY_STATION_TAG, -1);
 
         // Set ActionBar Title
         ActionBar actionBar = getActionBar();
         actionBar.setTitle(getString(R.string.listen_sidebar));
         actionBar.setSubtitle(getActivitySubtitle(getIntent()));
-
-        // Instantiate class members
-        prefManager = new PreferenceManager(this);
-        favTrackManager = new FavoriteTrackManager(this);
 
         // FIXME: Move these to PreferenceManager after expanding its scope for cleaner code
         trackPrefs = this.getSharedPreferences(StreamService.PREFS_NAME, 0);
@@ -101,15 +101,26 @@ public class StreamActivity extends Activity {
             }
         };
 
-        // Determine the URL we need to use to stream based on the station tag and quality preferences
-        streamUrl = getStreamUrl(stationTag);
-        Log.v(TAG, "streamUrl is now set to: " + streamUrl);
+        // Retrieve player state to determine how to build this activity
+        boolean playerState = prefManager.getPlayerState();
 
-        // Perform initial configuration of audio server
-        changeUrl(stationTag);
+        // If audio is playing in StreamService, we don't want to rebuffer, and we want to restore the UI state from the cache.
+        if (playerState) {
+            restoreUIState();
+        }
 
-        // Begin buffering the audio
-        startAudio((ImageView)this.findViewById(R.id.play_audio_imageview));
+        // If audio is NOT playing, buffer and treat this launch like a clean startup.
+        else {
+            // Determine the URL we need to use to stream based on the station tag and quality preferences
+            streamUrl = getStreamUrl(stationTag);
+            Log.v(TAG, "streamUrl is now set to: " + streamUrl);
+
+            // Perform initial configuration of audio server
+            changeUrl(stationTag);
+
+            // Begin buffering the audio
+            startAudio((ImageView)this.findViewById(R.id.play_audio_imageview));
+        }
 
         // Build play button listener
         final ImageView playButton = (ImageView)this.findViewById(R.id.play_audio_imageview);
@@ -270,12 +281,14 @@ public class StreamActivity extends Activity {
         favTrackManager.addTrackToFavorites(track);
         String message = getString(R.string.add_favorite);
         showStreamStatusBar(message, false);
+        FavoriteTrackManager.setFavoriteFlag(this, true);
     }
 
     private void removeTrackFromFavorites() {
         favTrackManager.removeTrackFromFavorites();
         String message = getString(R.string.remove_favorite);
         showStreamStatusBar(message, false);
+        FavoriteTrackManager.setFavoriteFlag(this, false);
     }
 
     @Override
@@ -292,15 +305,12 @@ public class StreamActivity extends Activity {
         } else {
             // When onResume is called when the screen is NOT being unlocked.
         }
-
         super.onResume();
-
-        Log.v(TAG, "StreamFragment onResume called!");
 
         // Retrieve favorites list from memory
         favTrackManager.loadFavoriteTracks();
 
-        // Restore UI state
+        // Restore favorite track state state
         restoreFavoriteState();
 
         // Register broadcast receiver to receive updates
@@ -325,6 +335,16 @@ public class StreamActivity extends Activity {
         // Store favoriteMap into memory
         Log.v(TAG, "Attempting to save favorite tracks...");
         favTrackManager.storeFavoriteTracks();
+
+        // Store the player state to rebuild this activity correctly
+        if (isPlaying) {
+            prefManager.setPlayerState(true);
+            Log.v(TAG, "Audio was playing when activity was closed! Player state is true.");
+        } else {
+            prefManager.setPlayerState(false);
+            Log.v(TAG, "Audio was NOT playing when activity was closed! Player state is false.");
+
+        }
 
     }
 
@@ -522,13 +542,9 @@ public class StreamActivity extends Activity {
         TextView artistAlbumTextView = (TextView)this.findViewById(R.id.artist_album_name_textview);
         ImageView albumArtImageView = (ImageView)this.findViewById(R.id.album_art_pane);
 
-        // Get current track information and write it to textviews
-        String trackName = trackPrefs.getString(StreamService.PREFKEY_TRACK, "");
-        String artistName = trackPrefs.getString(StreamService.PREFKEY_ARTIST, "");
-        String albumName = trackPrefs.getString(StreamService.PREFKEY_ALBUM, "");
-        songNameTextView.setText(trackName);
-        artistAlbumTextView.setText(artistName + " - " + albumName);
-
+        Track track = getCurrentTrack();
+        songNameTextView.setText(track.getTitle());
+        artistAlbumTextView.setText(track.getArtist() + " - " + track.getAlbum());
 
         // Get album art if it has been saved
         Bitmap bitmap = BitmapFactory.decodeFile(this.getFilesDir() + "/" + TrackUpdateHandler.ALBUM_ART_FILENAME);
@@ -688,25 +704,53 @@ public class StreamActivity extends Activity {
     }
 
     /**
-     * Restores favorites state when fragment is resumed. If a track is playing and was favorited by the user before
+     * Restores the state of the player UI in the event that this activity loses focus but StreamService is still
+     * running, therefore the user is still listening to the stream.
+     */
+    private void restoreUIState() {
+
+        TextView songNameTextView = (TextView)this.findViewById(R.id.song_name_textview);
+        TextView artistAlbumTextView = (TextView)this.findViewById(R.id.artist_album_name_textview);
+        ImageView albumArtImageView = (ImageView)this.findViewById(R.id.album_art_pane);
+
+        // Get current track information and apply it to the UI views
+        Track track = getCurrentTrack();
+        songNameTextView.setText(track.getTitle());
+        artistAlbumTextView.setText(track.getArtist() + " - " + track.getAlbum());
+
+        // Get album art if it has been saved
+        Bitmap bitmap = BitmapFactory.decodeFile(this.getFilesDir() + "/" + TrackUpdateHandler.ALBUM_ART_FILENAME);
+        if (bitmap != null) {
+            // If art was retrieved, load it into the album art pane.
+            albumArtImageView.setImageBitmap(bitmap);
+        } else {
+            // If nothing could be retrieved, load the placeholder album art image.
+            albumArtImageView.setImageResource(R.drawable.noalbumart);
+            Log.w(TAG, "Album art could not be decoded from SharedPreferences.");
+        }
+
+        // Since audio is still playing, isPlaying should be set to true (as it is set to false on creation) and
+        // the user should see a pause button.
+        isPlaying = true;
+        ImageView playButton = (ImageView)this.findViewById(R.id.play_audio_imageview);
+        playButton.setImageResource(R.drawable.pause_icon_white);
+    }
+
+    /**
+     * Restores favorites state when activity is resumed. If a track is playing and was favorited by the user before
      * leaving the fragment, we need to restore this state to the UI to avoid misbehavior.
      */
     private void restoreFavoriteState() {
         Log.v(TAG, "Trying to restore favorites state...");
-
-        // Check if the current track was is in the favorites list
-        Track currentTrack = getCurrentTrack();
-        Log.v(TAG, "Checking if this track is the same as the last favorited track...");
-        boolean isFavorite = favTrackManager.compareToLastFavoritedTrack(currentTrack);
-
         ImageView favoriteButton = (ImageView)findViewById(R.id.stream_favorite_imageview);
-        Log.v(TAG, "Trying to restore favorites state...");
+        boolean isFavorite = FavoriteTrackManager.isFavoriteFlagSet(this);
+
         if (isFavorite) {
-            Log.v(TAG, "Current track is identical to the last favorited track! Changing boolean and updating state.");
+            Log.v(TAG, "Track is favorited! Restoring state.");
             trackIsFavorite = true;
             favoriteButton.setImageResource(R.drawable.star_filled_white);
         } else {
-            Log.v(TAG, "Current track is NOT identical to the last favorited track! Refreshing UI.");
+            Log.v(TAG, "Track was NOT favorited! Restoring state.");
             trackIsFavorite = false;
             favoriteButton.setImageResource(R.drawable.star_unfilled_white);
         }
