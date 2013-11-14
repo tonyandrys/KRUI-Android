@@ -1,3 +1,28 @@
+/*
+ * fm.krui.kruifm.DJInfoActivity - DJInfoActivity.java
+ *
+ * (C) 2013 - Tony Andrys
+ * http://www.tonyandrys.com
+ *
+ * Created: 11/14/2013
+ *
+ * ---
+ *
+ * This file is part of KRUI.FM.
+ *
+ * KRUI.FM is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or(at your option) any later version.
+ *
+ * KRUI.FM is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with KRUI.FM.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package fm.krui.kruifm;
 
 import android.app.ActionBar;
@@ -11,16 +36,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 
-/**
- * fm.krui.kruifm - DJInfoActivity
- *
- * @author Tony Andrys
- *         Created: 08/29/2013
- *         (C) 2013 - Tony Andrys
- */
-/**
- * Root container for all radio fragments. This includes streaming, extended playlist, DJ info, and more.
- */
 public class DJInfoActivity extends FragmentActivity implements ActionBar.TabListener, DJInfoListener {
 
     private static String TAG = DJInfoActivity.class.getName();

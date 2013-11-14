@@ -1,36 +1,29 @@
-package fm.krui.kruifm;
-
-/**
+/*
+ * fm.krui.kruifm.URLEncoder - URLEncoder.java
  *
- * LibFormula : a free Java formula library
+ * (C) 2013 - Tony Andrys
+ * http://www.tonyandrys.com
  *
+ * Created: 11/14/2013
  *
- * Project Info:  http://reporting.pentaho.org/libformula/
+ * ---
  *
- * (C) Copyright 2006-2007, by Pentaho Corporation and Contributors.
+ * This file is part of KRUI.FM.
  *
- * This library is free software; you can redistribute it and/or modify it under the terms
- * of the GNU Lesser General Public License as published by the Free Software Foundation;
- * either version 2.1 of the License, or (at your option) any later version.
+ * KRUI.FM is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or(at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
+ * KRUI.FM is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License along with this
- * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
- *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
- *
- *
- * ------------
- * $Id: URLEncoder.java 3521 2007-10-16 10:55:14Z tmorgner $
- * ------------
- * (C) Copyright 2006-2007, by Pentaho Corporation.
+ * You should have received a copy of the GNU General Public License
+ * along with KRUI.FM.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package fm.krui.kruifm;
 
 import java.io.UnsupportedEncodingException;
 
