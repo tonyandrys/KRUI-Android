@@ -485,7 +485,7 @@ public class StreamFragment extends Fragment {
 
     public void startAudio(ImageView playButton) {
 
-        // FIXME: WHY WHY WHY do I have to call changeUrl BEFORE I can start the audio? The URL is stored in StreamService, right? I don't FUCKING UNDERSTAND THIS
+        // FIXME: WHY WHY WHY do I have to call changeUrl BEFORE I can start the audio? The URL is stored in StreamService, right? I don't FUCKING UNDERSTAND THIS!
         changeUrl(stationTag);
 
         // Request service to start audio
